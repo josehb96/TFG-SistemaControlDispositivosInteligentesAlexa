@@ -5,12 +5,12 @@ import pygame # Importamos la librería Pygame, que se utilizará para crear el 
 app = Flask(__name__) # Creamos una instancia de la clase Flask, la cual representa la aplicación web
 ask = Ask(app, '/') # Creamos una instancia de la clase Ask, la cual representa el servicio de Alexa, y le indicamos que use la ruta '/' para las solicitudes
 
-@ask.launch
+@ask.launch # Para cuando el usuario lanza la skill
 def start_skill():
     mensaje_bienvenida = 'Bienvenido al videojuego hola mundo'
     return statement(mensaje_bienvenida)
 
-@app.route('/')
+@app.route('/') # Se define la ruta (se puede definir otra ruta para otra página) a la homepage de la aplicación web de Flask
 def homepage():
     return "Hola, estás en la homepage"
 
@@ -27,5 +27,5 @@ def hello_world(): # Definimos la función que será ejecutada
     
     return statement('Hola Mundo') # Devolvemos una respuesta a la solicitud de Alexa con la cadena "Hola Mundo"
 
-if __name__ == '__main__': # Verificamos si este archivo es el archivo principal que se está ejecutando
+if __name__ == '__main__': # Verificamos si este archivo es el main que se está ejecutando
     app.run(port=5000, debug=True) # Iniciamos la aplicación web y habilitamos la depuración en caso de que ocurran errores
