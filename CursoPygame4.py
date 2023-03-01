@@ -2,14 +2,13 @@ from flask import Flask
 from flask_ask import Ask, statement, question
 import pygame, sys # También utilizamos el módulo sys
 from queue import Queue
-from pygame import queue
 from threading import Thread
 
 app = Flask(__name__)
 ask = Ask(app, '/')
 
 # Creamos una cola para compartir información entre los hilos
-queue = queue.Queue()
+queue = Queue()
 
 # Función que maneja el hilo de Pygame
 def game_thread(queue):
@@ -20,6 +19,8 @@ def game_thread(queue):
     # Pantalla - Ventana
     ANCHO, ALTO = 1000, 687
     PANTALLA = pygame.display.set_mode((ANCHO, ALTO)) # Especificamos el tamaño de la ventana con 500px de ancho y 400px de alto
+    FPS = 60
+    RELOJ = pygame.time.Clock()
 
     # Fondo del juego
     #fondo = pygame.image.load("Imagenes/Ciudad.png")
@@ -42,34 +43,35 @@ def game_thread(queue):
                 pygame.quit()
                 sys.exit()
 
-        #x_relativa = x % fondo.get_rect().width # Obtenemos el ancho del fondo de pantalla
-        #PANTALLA.blit(fondo, (x_relativa - fondo.get_rect().width, 0))
-        PANTALLA.blit(fondo, (x, 0))
-        x -= 1 # Decrementamos en 1 px en cada iteración del bucle
+        # Hacemos que el fondo se mueva de forma fluida
+        x_relativa = x % fondo.get_rect().width
+        PANTALLA.blit(fondo, (x_relativa - fondo.get_rect().width, 0))
+        if x_relativa < ANCHO:
+            PANTALLA.blit(fondo, (x_relativa,0)) # Si queremos que el fondo en lugar de moverse horizontalmente, lo haga verticalmente tendríamos que poner y_relativa en la coordenada Y, y dejar a 0 la coordenada X
+
+        x -= 1 # Decrementamos en 1 px en cada iteración del bucle para que el fondo se mueva a la derecha, si en lugar de restar, sumamos la imagen se moverá hacia la izquierda
         pygame.display.update() # Con esto nos aseguramos que la ventana se vaya actualizando
+        RELOJ.tick(FPS) # Con esto junto con el decremento de la x en 1 conseguimos mover un total de 60px por segundo
 
-        try:
-            # Intentamos obtener un mensaje de la cola sin bloquear el hilo
+        if queue.qsize() > 0: # Nos aseguramos que la cola tenga elementos antes de intentar obtener uno de ellos
+
             mensaje = queue.get_nowait()
-        except queue.Empty:
-            # Si no hay mensajes disponibles, continuamos con el siguiente ciclo del bucle
-            pass
 
-        # Si el mensaje es None, salimos del bucle y terminamos el hilo
-        if mensaje is None:
-            break
-        # Si recibimos un mensaje de texto, lo mostramos en la pantalla
-        if isinstance(mensaje, str):
+            # Si el mensaje es None, salimos del bucle y terminamos el hilo
+            if mensaje is None:
+                break
+            # Si recibimos un mensaje de texto, lo mostramos en la pantalla
+            if isinstance(mensaje, str):
 
-            if mensaje == 'Clean': # Si se recibe el mensaje Clean es para indicarnos que se vacie la ventana de juego
-                screen = pygame.display.get_surface()
-                screen.fill((0, 0, 0))
-                pygame.display.update()
-            else:
-                text = font.render(mensaje, True, (255, 255, 255))
-                screen = pygame.display.get_surface()
-                screen.blit(text, (200, 200))
-                pygame.display.update()
+                if mensaje == 'Clean': # Si se recibe el mensaje Clean es para indicarnos que se vacie la ventana de juego
+                    screen = pygame.display.get_surface()
+                    screen.fill((0, 0, 0))
+                    pygame.display.update()
+                else:
+                    text = font.render(mensaje, True, (255, 255, 255))
+                    screen = pygame.display.get_surface()
+                    screen.blit(text, (200, 200))
+                    pygame.display.update()
 
 
 # Creamos el hilo de Pygame y lo iniciamos
