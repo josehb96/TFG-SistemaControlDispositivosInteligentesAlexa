@@ -28,7 +28,6 @@ def game_thread(queue):
     VERDE = (0,255,0)
     AZUL = (0,0,255)
     H_50D2FE = (94,210,254)
-
     class Jugador(pygame.sprite.Sprite):
 
         # Sprite del jugador
@@ -38,8 +37,10 @@ def game_thread(queue):
             super().__init__()
 
             # Rectángulo (jugador), recordemos que las imágenes en Pygame son rectángulos
-            self.image = pygame.Surface((200,200))
-            self.image.fill(H_FA2F2F) # Especificamos un color al rectángulo
+            self.image = pygame.image.load("Imagenes/Coche.png").convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
+            #self.image.fill(H_FA2F2F) # No indicamos ningún color al sprite porque queremos que se muestre la imagen
+
+            self.image.set_colorkey(VERDE) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
 
             # Obtiene el rectángulo (sprite) de la imagen del jugador para poder manipularlo
             self.rect = self.image.get_rect()
@@ -50,17 +51,17 @@ def game_thread(queue):
         def update(self):
 
             # Actualiza esto cada vuelta del bucle
-            self.rect.y += 10 # Esto hace que el rectángulo (jugador) se mueva 10 píxeles hacia abajo en cada iteración
+            """self.rect.y += 10 # Esto hace que el rectángulo (jugador) se mueva 10 píxeles hacia abajo en cada iteración
             # top el límite superior y bottom es el límite inferior del rectángulo. También existen left y right
             if self.rect.top > ALTO: # Cuando el rectángulo traspasa el límite inferior de Y de la ventana
-                self.rect.bottom = 0
+                self.rect.bottom = 0"""
 
-            """
+            
             # Si quisieramos hacer que el rectángulo (jugador) se mueva de izquierda a derecha
             self.rect.x += 10
             if self.rect.left > ANCHO:
                 self.rect.right = 0
-            """
+            
 
             """ # Con esto el rectángulo va de abajo a arriba
             self.rect.y -= 10
@@ -68,11 +69,11 @@ def game_thread(queue):
                 self.rect.top = ALTO
             """
 
-            """ # Con esto el rectángulo va de derecha a izquierda
+            """# Con esto el rectángulo va de derecha a izquierda
             self.rect.x -= 10
             if self.rect.right < 0:
-                self.rect.left = ANCHO
-            """
+                self.rect.left = ANCHO"""
+        
 
 
     # Iniciación de Pygame, creación de la ventana, título y control de reloj.
