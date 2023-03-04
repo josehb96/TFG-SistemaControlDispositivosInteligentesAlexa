@@ -172,75 +172,79 @@ def game_thread(queue):
             if self.rect.top < 0:
                 self.rect.top = 0
 
-    # Iniciación de Pygame, creación de la ventana, título y control de reloj.
-    pygame.init()
-    pantalla = pygame.display.set_mode((ANCHO, ALTO))
-    pygame.display.set_caption("Movimiento")
-    clock = pygame.time.Clock() # Para controlar los FPS
+    mensaje = queue.get()
 
-    # Grupo de sprites, instanciación del objeto jugador.
-    sprites = pygame.sprite.Group() # Se agrupan los sprites para que trabajen en un conjunto y se almacene en la variable que queramos
-    jugador = Jugador()
-    sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
+    if mensaje == 'Init': # Si se recibe un mensaje por la cola que indica que se inicie el juego
 
-    font = pygame.font.SysFont(None, 48)
+        # Iniciación de Pygame, creación de la ventana, título y control de reloj.
+        pygame.init()
+        pantalla = pygame.display.set_mode((ANCHO, ALTO))
+        pygame.display.set_caption("Movimiento")
+        clock = pygame.time.Clock() # Para controlar los FPS
 
-    # Bucle de juego
-    ejecutando = True
-    while ejecutando:
+        # Grupo de sprites, instanciación del objeto jugador.
+        sprites = pygame.sprite.Group() # Se agrupan los sprites para que trabajen en un conjunto y se almacene en la variable que queramos
+        jugador = Jugador()
+        sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
 
-        # Es lo que especifica la velocidad del bucle de juego
-        clock.tick(FPS)
+        # Bucle de juego
+        ejecutando = True
+        while ejecutando:
 
-        # Eventos
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                ejecutando = False
-                #pygame.quit()
-                #sys.exit()
+            # Es lo que especifica la velocidad del bucle de juego
+            clock.tick(FPS)
 
-        # Actualización de sprites
-        sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la pantalla
+            # Eventos
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    ejecutando = False
+                    #pygame.quit()
+                    #sys.exit()
 
-        # Fondo de pantalla, dibujo de sprites y formas geométricas
-        pantalla.fill(NEGRO) # Establecemos el color de fondo de la pantalla
-        sprites.draw(pantalla) # Dibujamos los sprites en la pantalla
-        pygame.draw.line(pantalla, H_50D2FE, (400, 0), (400, 800), 1)
-        pygame.draw.line(pantalla, AZUL, (0, 300), (800, 300), 1)
+            # Actualización de sprites
+            sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la pantalla
 
-        # Actualizamos el contenido de la pantalla
-        pygame.display.flip() # Permite que solo una porción de la pantalla se actualice, en lugar de toda el área de la pantalla. Si no se pasan argumentos, se actualizará la superficie completa.
+            # Fondo de pantalla, dibujo de sprites y formas geométricas
+            pantalla.fill(NEGRO) # Establecemos el color de fondo de la pantalla
+            sprites.draw(pantalla) # Dibujamos los sprites en la pantalla
+            pygame.draw.line(pantalla, H_50D2FE, (400, 0), (400, 800), 1)
+            pygame.draw.line(pantalla, AZUL, (0, 300), (800, 300), 1)
 
-        if queue.qsize() > 0: # Nos aseguramos que la cola tenga elementos antes de intentar obtener uno de ellos
+            # Actualizamos el contenido de la pantalla
+            pygame.display.flip() # Permite que solo una porción de la pantalla se actualice, en lugar de toda el área de la pantalla. Si no se pasan argumentos, se actualizará la superficie completa.
 
-            mensaje = queue.get_nowait()
+            if queue.qsize() > 0: # Nos aseguramos que la cola tenga elementos antes de intentar obtener uno de ellos
 
-            # Si el mensaje es None, salimos del bucle y terminamos el hilo
-            if mensaje is None:
-                break
-            # Si recibimos un mensaje de texto, lo mostramos en la pantalla
-            if isinstance(mensaje, str):
+                mensaje = queue.get_nowait()
 
-                if mensaje == 'Clean': # Si se recibe el mensaje Clean es para indicarnos que se vacie la ventana de juego
-                    #screen = pygame.display.get_surface()
-                    #screen.fill(NEGRO)
-                    pygame.quit()
-                    sys.exit()
-                    #pygame.display.update()
-                elif mensaje == 'Up' or mensaje == 'Down' or mensaje == 'Left' or mensaje == 'Right' or mensaje == 'UpLeft' or mensaje == 'UpRight' or mensaje == 'DownLeft' or mensaje == 'DownRight': # Si se nos ha pedido mover el personaje
-                    
-                    jugador.ejecutaMovimiento(mensaje)
+                # Si el mensaje es None, salimos del bucle y terminamos el hilo
+                if mensaje is None:
+                    break
+                # Si recibimos un mensaje de texto, lo mostramos en la pantalla
+                if isinstance(mensaje, str):
 
-                    # Dibujamos los sprites en la pantalla
-                    sprites.draw(pantalla)
+                    if mensaje == 'Clean': # Si se recibe el mensaje Clean es para indicarnos que se vacie la ventana de juego
+                        #screen = pygame.display.get_surface()
+                        #screen.fill(NEGRO)
+                        #pygame.quit()
+                        #sys.exit()
+                        #pygame.display.update()
+                        ejecutando = False
+                    elif mensaje == 'Up' or mensaje == 'Down' or mensaje == 'Left' or mensaje == 'Right' or mensaje == 'UpLeft' or mensaje == 'UpRight' or mensaje == 'DownLeft' or mensaje == 'DownRight': # Si se nos ha pedido mover el personaje
+                        
+                        jugador.ejecutaMovimiento(mensaje)
 
-                    # Actualizamos los sprites
-                    sprites.update()
+                        # Dibujamos los sprites en la pantalla
+                        sprites.draw(pantalla)
 
-                    # Actualizamos la pantalla
-                    pygame.display.flip()
+                        # Actualizamos los sprites
+                        sprites.update()
 
-    pygame.quit()
+                        # Actualizamos la pantalla
+                        pygame.display.flip()
+
+        # Y SI PREGUNTAMOS SI SE QUIERE JUGAR OTRA PARTIDA ANTES DE CERRAR PYGAME
+        pygame.quit()
 
 # Creamos el hilo de Pygame y lo iniciamos
 game_thread = Thread(target=game_thread, args=(queue,))
@@ -248,6 +252,9 @@ game_thread.start()
 
 @ask.launch # Para cuando el usuario lanza la skill
 def start_skill():
+    # Iniciamos el hilo de Pygame
+    # Indicamos a Pygame que inicie el juego
+    queue.put('Init')
     return question('Bienvenido al videojuego Movimiento. Dime en qué dirección quieres moverte.')
 
 # Definimos la ruta para el intent UpIntent
