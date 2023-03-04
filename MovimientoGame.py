@@ -54,7 +54,62 @@ def game_thread(queue):
             self.velocidad_x = 0 # Inicialmente el objeto va a estar quieto
             self.velocidad_y = 0
 
-        def update(self, movimiento):
+        def update(self):
+
+            # Velocidad predeterminada cada vuelta del bucle si no pulsas nada
+            # ESTO PARA TRABAJAR POR VOZ SEGURAMENTE NO NOS INTERESA
+            self.velocidad_x = 0 # Con esto se evita que el personaje se mueva de manera indefinida si no estamos pulsando nada
+            self.velocidad_y = 0
+
+            # Mantiene las teclas pulsadas
+            teclas = pygame.key.get_pressed()
+
+            # Mueve el personaje hacia la izquierda
+            if teclas[pygame.K_a]:
+                self.velocidad_x = -10 # Cada vez que se pulse la tecla se moverá 10px a la izquierda
+            
+            # Mueve el personaje hacia la derecha
+            if teclas[pygame.K_d]:
+                self.velocidad_x = 10
+
+            # Mueve el personaje hacia arriba
+            if teclas[pygame.K_w]:
+                self.velocidad_y = -10 # Cada vez que se pulse la tecla se moverá 10px hacia arriba
+            
+            # Mueve el personaje hacia abajo
+            if teclas[pygame.K_s]:
+                self.velocidad_y = 10
+
+            # Actualiza la posición del personaje
+            self.rect.x += self.velocidad_x
+            self.rect.y += self.velocidad_y
+
+            # Limita el margen izquierdo
+            if self.rect.left < 0: # Cada vez que toque el borde izquierdo e intente salir de la pantalla 
+                self.rect.left = 0 # Se ajusta el personaje al borde izquierdo
+
+            # Limita el margen derecho
+            if self.rect.right > ANCHO:
+                self.rect.right = ANCHO
+
+            # Limita el margen inferior
+            if self.rect.bottom > ALTO:
+                self.rect.bottom = ALTO
+
+            # Limita el margen superior
+            if self.rect.top < 0:
+                self.rect.top = 0
+
+            """
+            # Si queremos limitar aún más el recorrido y no hasta los bordes pues simplemente podemos hacerlo tal que así
+            if self.rect.left < 300:
+                self.rect.left = 300
+
+            if self.rect.right > 500:
+                self.rect.right = 500
+            """        
+
+        def ejecutaMovimiento(self, movimiento):
 
             # Velocidad predeterminada cada vuelta del bucle si no pulsas nada
             # ESTO PARA TRABAJAR POR VOZ SEGURAMENTE NO NOS INTERESA
@@ -76,6 +131,26 @@ def game_thread(queue):
             # Mueve el personaje hacia abajo
             if movimiento == 'Down':
                 self.velocidad_y = 50
+
+            # Mueve el personaje hacia arriba a la izquierda
+            if movimiento == 'UpLeft':
+                self.velocidad_x = -50
+                self.velocidad_y = -50 
+            
+            # Mueve el personaje hacia arriba a la derecha
+            if movimiento == 'UpRight':
+                self.velocidad_x = 50
+                self.velocidad_y = -50
+
+            # Mueve el personaje hacia abajo a la izquierda
+            if movimiento == 'DownLeft':
+                self.velocidad_y = 50
+                self.velocidad_x = -50
+            
+            # Mueve el personaje hacia abaja a la derecha
+            if movimiento == 'DownRight':
+                self.velocidad_y = 50
+                self.velocidad_x = 50
 
             # Actualiza la posición del personaje
             self.rect.x += self.velocidad_x
@@ -152,9 +227,18 @@ def game_thread(queue):
                     pygame.quit()
                     sys.exit()
                     #pygame.display.update()
-                elif mensaje == 'Up' or mensaje == 'Down' or mensaje == 'Left' or mensaje == 'Right': # Si se nos ha pedido mover el personaje
-                    jugador.update(mensaje)
-                    pygame.display.update()
+                elif mensaje == 'Up' or mensaje == 'Down' or mensaje == 'Left' or mensaje == 'Right' or mensaje == 'UpLeft' or mensaje == 'UpRight' or mensaje == 'DownLeft' or mensaje == 'DownRight': # Si se nos ha pedido mover el personaje
+                    
+                    jugador.ejecutaMovimiento(mensaje)
+
+                    # Dibujamos los sprites en la pantalla
+                    sprites.draw(pantalla)
+
+                    # Actualizamos los sprites
+                    sprites.update()
+
+                    # Actualizamos la pantalla
+                    pygame.display.flip()
 
     pygame.quit()
 
@@ -193,6 +277,34 @@ def izquierda():
     # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
     queue.put('Left')
     return question('El personaje se mueve hacia la izquierda.')
+
+# Definimos la ruta para el intent UpLeftIntent
+@ask.intent('UpLeftIntent')
+def arribaIzquierda():
+    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
+    queue.put('UpLeft')
+    return question('El personaje se mueve arriba a la izquierda.')
+
+# Definimos la ruta para el intent UpRightIntent
+@ask.intent('UpRightIntent')
+def arribaDerecha():
+    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
+    queue.put('UpRight')
+    return question('El personaje se mueve arriba a la derecha.')
+
+# Definimos la ruta para el intent DownLeftIntent
+@ask.intent('DownLeftIntent')
+def arribaIzquierda():
+    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
+    queue.put('DownLeft')
+    return question('El personaje se mueve abajo a la izquierda.')
+
+# Definimos la ruta para el intent DownRightIntent
+@ask.intent('DownRightIntent')
+def arribaDerecha():
+    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
+    queue.put('DownRight')
+    return question('El personaje se mueve abajo a la derecha.')
 
 @ask.intent('EndgameIntent')
 def endgame():
