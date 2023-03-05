@@ -3,6 +3,7 @@ from flask_ask import Ask, statement, question
 import pygame, sys # También utilizamos el módulo sys
 from queue import Queue
 from threading import Thread
+import time
 
 app = Flask(__name__)
 ask = Ask(app, '/')
@@ -172,79 +173,90 @@ def game_thread(queue):
             if self.rect.top < 0:
                 self.rect.top = 0
 
-    mensaje = queue.get()
+    # Bucle de juego
+    ejecutando = True
+    while ejecutando:
 
-    if mensaje == 'Init': # Si se recibe un mensaje por la cola que indica que se inicie el juego
+        mensaje = queue.get()
 
-        # Iniciación de Pygame, creación de la ventana, título y control de reloj.
-        pygame.init()
-        pantalla = pygame.display.set_mode((ANCHO, ALTO))
-        pygame.display.set_caption("Movimiento")
-        clock = pygame.time.Clock() # Para controlar los FPS
+        # Si el mensaje es None, salimos del bucle y terminamos el hilo
+        if mensaje is None:
+            break
+        # Si recibimos un mensaje de texto, lo mostramos en la pantalla
+        if isinstance(mensaje, str):
 
-        # Grupo de sprites, instanciación del objeto jugador.
-        sprites = pygame.sprite.Group() # Se agrupan los sprites para que trabajen en un conjunto y se almacene en la variable que queramos
-        jugador = Jugador()
-        sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
+            if mensaje == 'Init':
 
-        # Bucle de juego
-        ejecutando = True
-        while ejecutando:
+                # Iniciación de Pygame, creación de la ventana, título y control de reloj.
+                pygame.init()
+                pantalla = pygame.display.set_mode((ANCHO, ALTO))
+                pygame.display.set_caption("Movimiento")
+                clock = pygame.time.Clock() # Para controlar los FPS
 
-            # Es lo que especifica la velocidad del bucle de juego
-            clock.tick(FPS)
+                font = pygame.font.SysFont(None, 100)
 
-            # Eventos
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    ejecutando = False
-                    #pygame.quit()
-                    #sys.exit()
+                # Grupo de sprites, instanciación del objeto jugador.
+                sprites = pygame.sprite.Group() # Se agrupan los sprites para que trabajen en un conjunto y se almacene en la variable que queramos
+                jugador = Jugador()
+                sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
 
-            # Actualización de sprites
-            sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la pantalla
+            elif mensaje == 'Endgame': # Si se recibe el mensaje Clean es para indicarnos que se vacie la ventana de juego
+                #pantalla = pygame.display.get_surface()
+                #pantalla.fill(NEGRO)
+                #pygame.quit()
+                #sys.exit()
+                #pygame.display.update()
+                #ejecutando = False
+                text = font.render('ENDGAME', True, ROJO)
 
-            # Fondo de pantalla, dibujo de sprites y formas geométricas
-            pantalla.fill(NEGRO) # Establecemos el color de fondo de la pantalla
-            sprites.draw(pantalla) # Dibujamos los sprites en la pantalla
-            pygame.draw.line(pantalla, H_50D2FE, (400, 0), (400, 800), 1)
-            pygame.draw.line(pantalla, AZUL, (0, 300), (800, 300), 1)
+                # Obtener las dimensiones del texto
+                text_width, text_height = font.size("ENDGAME")
 
-            # Actualizamos el contenido de la pantalla
-            pygame.display.flip() # Permite que solo una porción de la pantalla se actualice, en lugar de toda el área de la pantalla. Si no se pasan argumentos, se actualizará la superficie completa.
+                # Calcular la posición para centrar el texto
+                x = (ANCHO - text_width) // 2
+                y = (ALTO - text_height) // 2
 
-            if queue.qsize() > 0: # Nos aseguramos que la cola tenga elementos antes de intentar obtener uno de ellos
+                screen = pygame.display.get_surface()
+                screen.blit(text, (x,y)) # Vamos a centrar el texto en la ventana de Pygame
+                pygame.display.update()
+                time.sleep(5)
 
-                mensaje = queue.get_nowait()
+            elif mensaje == 'Up' or mensaje == 'Down' or mensaje == 'Left' or mensaje == 'Right' or mensaje == 'UpLeft' or mensaje == 'UpRight' or mensaje == 'DownLeft' or mensaje == 'DownRight': # Si se nos ha pedido mover el personaje
+                
+                jugador.ejecutaMovimiento(mensaje)
 
-                # Si el mensaje es None, salimos del bucle y terminamos el hilo
-                if mensaje is None:
-                    break
-                # Si recibimos un mensaje de texto, lo mostramos en la pantalla
-                if isinstance(mensaje, str):
+                # Dibujamos los sprites en la pantalla
+                sprites.draw(pantalla)
 
-                    if mensaje == 'Clean': # Si se recibe el mensaje Clean es para indicarnos que se vacie la ventana de juego
-                        #screen = pygame.display.get_surface()
-                        #screen.fill(NEGRO)
-                        #pygame.quit()
-                        #sys.exit()
-                        #pygame.display.update()
-                        ejecutando = False
-                    elif mensaje == 'Up' or mensaje == 'Down' or mensaje == 'Left' or mensaje == 'Right' or mensaje == 'UpLeft' or mensaje == 'UpRight' or mensaje == 'DownLeft' or mensaje == 'DownRight': # Si se nos ha pedido mover el personaje
-                        
-                        jugador.ejecutaMovimiento(mensaje)
+                # Actualizamos los sprites
+                sprites.update()
 
-                        # Dibujamos los sprites en la pantalla
-                        sprites.draw(pantalla)
+                # Actualizamos la pantalla
+                pygame.display.flip()
 
-                        # Actualizamos los sprites
-                        sprites.update()
+        # Es lo que especifica la velocidad del bucle de juego
+        clock.tick(FPS)
 
-                        # Actualizamos la pantalla
-                        pygame.display.flip()
+        # Eventos
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                ejecutando = False
+                #pygame.quit()
+                #sys.exit()
 
-        # Y SI PREGUNTAMOS SI SE QUIERE JUGAR OTRA PARTIDA ANTES DE CERRAR PYGAME
-        pygame.quit()
+        # Actualización de sprites
+        sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la pantalla
+
+        # Fondo de pantalla, dibujo de sprites y formas geométricas
+        pantalla.fill(NEGRO) # Establecemos el color de fondo de la pantalla
+        sprites.draw(pantalla) # Dibujamos los sprites en la pantalla
+        pygame.draw.line(pantalla, H_50D2FE, (400, 0), (400, 800), 1)
+        pygame.draw.line(pantalla, AZUL, (0, 300), (800, 300), 1)
+
+        # Actualizamos el contenido de la pantalla
+        pygame.display.flip() # Permite que solo una porción de la pantalla se actualice, en lugar de toda el área de la pantalla. Si no se pasan argumentos, se actualizará la superficie completa.
+
+    pygame.quit()
 
 # Creamos el hilo de Pygame y lo iniciamos
 game_thread = Thread(target=game_thread, args=(queue,))
@@ -252,8 +264,7 @@ game_thread.start()
 
 @ask.launch # Para cuando el usuario lanza la skill
 def start_skill():
-    # Iniciamos el hilo de Pygame
-    # Indicamos a Pygame que inicie el juego
+    # Indicamos a pygame que inicie el videojuego
     queue.put('Init')
     return question('Bienvenido al videojuego Movimiento. Dime en qué dirección quieres moverte.')
 
@@ -315,7 +326,7 @@ def arribaDerecha():
 
 @ask.intent('EndgameIntent')
 def endgame():
-    queue.put('Clean')
+    queue.put('Endgame')
     return statement('Fin del juego.')
 
 # Definimos la ruta para la página principal de la aplicación web
