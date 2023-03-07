@@ -122,34 +122,34 @@ def game_thread(queue):
                 self.velocidad_x = -50 # Cada vez que se pulse la tecla se moverá 10px a la izquierda
             
             # Mueve el personaje hacia la derecha
-            if movimiento == 'Right':
+            elif movimiento == 'Right':
                 self.velocidad_x = 50
 
             # Mueve el personaje hacia arriba
-            if movimiento == 'Up':
+            elif movimiento == 'Up':
                 self.velocidad_y = -50 # Cada vez que se pulse la tecla se moverá 10px hacia arriba
             
             # Mueve el personaje hacia abajo
-            if movimiento == 'Down':
+            elif movimiento == 'Down':
                 self.velocidad_y = 50
 
             # Mueve el personaje hacia arriba a la izquierda
-            if movimiento == 'UpLeft':
+            elif movimiento == 'UpLeft':
                 self.velocidad_x = -50
                 self.velocidad_y = -50 
             
             # Mueve el personaje hacia arriba a la derecha
-            if movimiento == 'UpRight':
+            elif movimiento == 'UpRight':
                 self.velocidad_x = 50
                 self.velocidad_y = -50
 
             # Mueve el personaje hacia abajo a la izquierda
-            if movimiento == 'DownLeft':
+            elif movimiento == 'DownLeft':
                 self.velocidad_y = 50
                 self.velocidad_x = -50
             
             # Mueve el personaje hacia abaja a la derecha
-            if movimiento == 'DownRight':
+            elif movimiento == 'DownRight':
                 self.velocidad_y = 50
                 self.velocidad_x = 50
 
@@ -182,7 +182,7 @@ def game_thread(queue):
         # Si el mensaje es None, salimos del bucle y terminamos el hilo
         if mensaje is None:
             break
-        # Si recibimos un mensaje de texto, lo mostramos en la pantalla
+        # Si recibimos un mensaje de texto
         if isinstance(mensaje, str):
 
             if mensaje == 'Init':
@@ -200,7 +200,7 @@ def game_thread(queue):
                 jugador = Jugador()
                 sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
 
-            elif mensaje == 'Endgame': # Si se recibe el mensaje Clean es para indicarnos que se vacie la ventana de juego
+            elif mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que se vacie la ventana de juego
                 #pantalla = pygame.display.get_surface()
                 #pantalla.fill(NEGRO)
                 #pygame.quit()
@@ -238,8 +238,8 @@ def game_thread(queue):
         clock.tick(FPS)
 
         # Eventos
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+        for event in pygame.event.get(): # Obtenemos una lista de todos los eventos en la cola de eventos de Pygame, que incluyen eventos del teclado, del mouse, de la ventana, etc.
+            if event.type == pygame.QUIT: # Si el evento es de tipo `QUIT` indica que el usuario ha hecho clic en el botón "X" para cerrar la ventana.
                 ejecutando = False
                 #pygame.quit()
                 #sys.exit()
