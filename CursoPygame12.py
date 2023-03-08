@@ -190,8 +190,8 @@ def game_thread(queue):
             #self.velocidad_x = 5
             #self.velocidad_y = 5
             # Si en lugar de que se muevan con una velocidad establecida lo hagan con una velocidad alaatoria
-            self.velocidad_x = random.randrange(1, 10) # Con esto la velocidad será entre 1 y 10
-            self.velocidad_y = random.randrange(1, 10)
+            self.velocidad_x = random.randrange(1, 3) # Con esto la velocidad será entre 1 y 3
+            self.velocidad_y = random.randrange(1, 3)
 
         def update(self):
 
@@ -227,7 +227,18 @@ def game_thread(queue):
     sprites = pygame.sprite.Group() # Se agrupan los sprites para que trabajen en un conjunto y se almacene en la variable que queramos
     spritesEnemigos = pygame.sprite.Group() # Como vamos a utilizar las colisiones necesitamos tener un grupo dedicado a los enemigos
 
-    max_enemies = 5 # Establecemos el máximo de enemigos
+    max_enemies = 3 # Establecemos el máximo de enemigos
+
+    # EL ORDEN EN EL QUE INSTANCIAMOS LOS SPRITES DETERMINA CUAL APARECE POR ENCIMA DE OTRO, EL ÚLTIMO INSTANCIADO APARECERÁ POR ENCIMA 
+
+    # Instanciación del objeto jugador
+    jugador = Jugador()
+
+    lista_enemigos = [] # Creamos la lista de enemigos para guardarnos las referencias y poder borrarlos posteriormente del juego
+    for x in range(random.randrange(max_enemies) + 1): # Generamos de 1 a "max_enemies" enemigos de forma aleatoria (con el +1 nos aseguramos que siempre va a haber por lo menos un enemigo instanciado)
+        # Creamos el objeto enemigo y lo añadimos a la lista
+        enemigo = Enemigo()
+        lista_enemigos.append(enemigo)
 
     # Bucle de juego
     ejecutando = True
@@ -247,27 +258,23 @@ def game_thread(queue):
 
                     # EL ORDEN EN EL QUE INSTANCIAMOS LOS SPRITES DETERMINA CUAL APARECE POR ENCIMA DE OTRO, EL ÚLTIMO INSTANCIADO APARECERÁ POR ENCIMA 
                     
-                    # Instanciación del objeto jugador
-                    jugador = Jugador()
                     sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
 
-                    lista_enemigos = [] # Creamos la lista de enemigos para guardarnos las referencias y poder borrarlos posteriormente del juego
-                    for x in range(random.randrange(max_enemies) + 1): # Generamos de 1 a 5 enemigos de forma aleatoria (con el +1 nos aseguramos que siempre va a haber por lo menos un enemigo instanciado)
-                        # Creamos el objeto enemigo y añadimos el sprite al conjunto de sprites
-                        enemigo = Enemigo()
-                        lista_enemigos.append(enemigo)
-                        # Nos guardamos la referencia de cada enemigo en una lista para poder borrarlos todos cuando finalice el juego
+                    for enemigo in lista_enemigos: # Generamos de 1 a 5 enemigos de forma aleatoria (con el +1 nos aseguramos que siempre va a haber por lo menos un enemigo instanciado)
+                        # Añadimos el sprite de cada enemigo al conjunto de sprites
                         spritesEnemigos.add(enemigo)
 
 
                 elif mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que se vacie la ventana de juego
 
                     # Eliminamos los sprites de la pantalla y hacemos que el objeto jugador apunte a null
-                    sprites.remove(jugador) # Eliminamos al personaje de la pantalla
-                    jugador = None
+                    #sprites.remove(jugador) # Eliminamos al personaje de la pantalla
+                    jugador.kill()
+                    #jugador = None
 
                     for enemigo in lista_enemigos: # Eliminamos todos los enemigos de la pantalla
-                        sprites.remove(enemigo) # Eliminamos el sprite
+                        #sprites.remove(enemigo) # Eliminamos el sprite
+                        enemigo.kill()
                     
                     lista_enemigos.clear() # Vaciamos la lista de enemigos
 
@@ -312,8 +319,12 @@ def game_thread(queue):
         sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la pantalla
         spritesEnemigos.update()
 
-        # Indicamos que el sprite del jugador va a ser el que provoque la colisión sobre el grupo de sprites colisionados (spritesEnemigos) y que no queremos que por defecto haya kill a los enemigos (False)
+        # Indicamos que el sprite de los enemigos va a ser el que provoque la colisión sobre el grupo de sprites colisionados (spritesEnemigos) y que no queremos que por defecto haya kill a los enemigos (False)
         colision = pygame.sprite.spritecollide(jugador, spritesEnemigos, False) 
+        if colision: # Si se produce una colisión, es decir, si los enemigos alcanzan al jugador termina la partida
+            jugador.image = pygame.image.load("Imagenes/Enemigo.png").convert() # El jugador ha sido infectado y por ello modificamos su imagen
+            jugador.image.set_colorkey(VERDE) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
+            queue.put('Endgame') # Terminamos la partida 
 
         # Fondo de pantalla, dibujo de sprites y formas geométricas
         pantalla.fill(NEGRO) # Establecemos el color de fondo de la pantalla
