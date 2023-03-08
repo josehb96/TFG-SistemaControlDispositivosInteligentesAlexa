@@ -1,0 +1,415 @@
+from flask import Flask
+from flask_ask import Ask, statement, question
+import pygame, sys # También utilizamos el módulo sys
+from queue import Queue
+from threading import Thread
+import time
+import random # Para hacer cosas aleatorias
+
+app = Flask(__name__)
+ask = Ask(app, '/')
+
+# Creamos una cola para compartir información entre los hilos
+queue = Queue()
+
+# Función que maneja el hilo de Pygame
+def game_thread(queue):
+
+    # Tamaño de la pantalla de Pygame en píxeles
+    ANCHO = 800
+    ALTO = 600
+
+    # FPS
+    FPS = 30
+
+    # Paleta de colores en RGB
+    NEGRO = (0,0,0)
+    BLANCO = (255,255,255)
+    ROJO = (255,0,0)
+    H_FA2F2F = (250,47,47)
+    VERDE = (0,255,0)
+    AZUL = (0,0,255)
+    H_50D2FE = (94,210,254)
+    AZUL2 = (64,64,255)
+
+    class Jugador(pygame.sprite.Sprite):
+
+        # Sprite del jugador
+        def __init__(self):
+
+            # Heredamos el init de la clase Sprite de Pygame
+            super().__init__()
+
+            # Rectángulo (jugador), recordemos que las imágenes en Pygame son rectángulos
+            self.image = pygame.image.load("Imagenes/Personaje.png").convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
+            #self.image.fill(H_FA2F2F) # No indicamos ningún color al sprite porque queremos que se muestre la imagen
+
+            self.image.set_colorkey(VERDE) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
+
+            # Obtiene el rectángulo (sprite) de la imagen del jugador para poder manipularlo
+            self.rect = self.image.get_rect()
+
+            # Centra el rectángulo (sprite)
+            self.rect.center = (ANCHO // 2, ALTO // 2) # Este operador devuelve el resultado (integer) de dividir, redondeando si sale float
+            #self.rect.center = (400,600) # Podemos colocar el rectángulo en la posición inicial que queramos
+
+            # Velocidad del personaje (inicial)
+            self.velocidad_x = 0 # Inicialmente el objeto va a estar quieto
+            self.velocidad_y = 0
+
+        def update(self):
+
+            # Velocidad predeterminada cada vuelta del bucle si no pulsas nada
+            # ESTO PARA TRABAJAR POR VOZ SEGURAMENTE NO NOS INTERESA
+            self.velocidad_x = 0 # Con esto se evita que el personaje se mueva de manera indefinida si no estamos pulsando nada
+            self.velocidad_y = 0
+
+            # Mantiene las teclas pulsadas
+            teclas = pygame.key.get_pressed()
+
+            # Mueve el personaje hacia la izquierda
+            if teclas[pygame.K_a]:
+                self.velocidad_x = -10 # Cada vez que se pulse la tecla se moverá 10px a la izquierda
+            
+            # Mueve el personaje hacia la derecha
+            if teclas[pygame.K_d]:
+                self.velocidad_x = 10
+
+            # Mueve el personaje hacia arriba
+            if teclas[pygame.K_w]:
+                self.velocidad_y = -10 # Cada vez que se pulse la tecla se moverá 10px hacia arriba
+            
+            # Mueve el personaje hacia abajo
+            if teclas[pygame.K_s]:
+                self.velocidad_y = 10
+
+            # Actualiza la posición del personaje
+            self.rect.x += self.velocidad_x
+            self.rect.y += self.velocidad_y
+
+            # Limita el margen izquierdo
+            if self.rect.left < 0: # Cada vez que toque el borde izquierdo e intente salir de la pantalla 
+                self.rect.left = 0 # Se ajusta el personaje al borde izquierdo
+
+            # Limita el margen derecho
+            if self.rect.right > ANCHO:
+                self.rect.right = ANCHO
+
+            # Limita el margen inferior
+            if self.rect.bottom > ALTO:
+                self.rect.bottom = ALTO
+
+            # Limita el margen superior
+            if self.rect.top < 0:
+                self.rect.top = 0
+
+        def ejecutaMovimiento(self, movimiento):
+
+            # Velocidad predeterminada cada vuelta del bucle si no pulsas nada
+            # ESTO PARA TRABAJAR POR VOZ SEGURAMENTE NO NOS INTERESA
+            self.velocidad_x = 0 # Con esto se evita que el personaje se mueva de manera indefinida si no estamos pulsando nada
+            self.velocidad_y = 0
+
+            # Mueve el personaje hacia la izquierda
+            if movimiento == 'Left':
+                self.velocidad_x = -50 # Cada vez que se pulse la tecla se moverá 10px a la izquierda
+            
+            # Mueve el personaje hacia la derecha
+            elif movimiento == 'Right':
+                self.velocidad_x = 50
+
+            # Mueve el personaje hacia arriba
+            elif movimiento == 'Up':
+                self.velocidad_y = -50 # Cada vez que se pulse la tecla se moverá 10px hacia arriba
+            
+            # Mueve el personaje hacia abajo
+            elif movimiento == 'Down':
+                self.velocidad_y = 50
+
+            # Mueve el personaje hacia arriba a la izquierda
+            elif movimiento == 'UpLeft':
+                self.velocidad_x = -50
+                self.velocidad_y = -50 
+            
+            # Mueve el personaje hacia arriba a la derecha
+            elif movimiento == 'UpRight':
+                self.velocidad_x = 50
+                self.velocidad_y = -50
+
+            # Mueve el personaje hacia abajo a la izquierda
+            elif movimiento == 'DownLeft':
+                self.velocidad_y = 50
+                self.velocidad_x = -50
+            
+            # Mueve el personaje hacia abaja a la derecha
+            elif movimiento == 'DownRight':
+                self.velocidad_y = 50
+                self.velocidad_x = 50
+
+            # Actualiza la posición del personaje
+            self.rect.x += self.velocidad_x
+            self.rect.y += self.velocidad_y
+
+            # Limita el margen izquierdo
+            if self.rect.left < 0: # Cada vez que toque el borde izquierdo e intente salir de la pantalla 
+                self.rect.left = 0 # Se ajusta el personaje al borde izquierdo
+
+            # Limita el margen derecho
+            if self.rect.right > ANCHO:
+                self.rect.right = ANCHO
+
+            # Limita el margen inferior
+            if self.rect.bottom > ALTO:
+                self.rect.bottom = ALTO
+
+            # Limita el margen superior
+            if self.rect.top < 0:
+                self.rect.top = 0
+
+    class Enemigo(pygame.sprite.Sprite):
+
+        # Sprite del enemigo
+        def __init__(self):
+
+            # Heredamos el init de la clase Sprite de Pygame
+            super().__init__()
+
+            # Rectángulo (enemigo), recordemos que las imágenes en Pygame son rectángulos
+            self.image = pygame.image.load("Imagenes/Enemigo.png").convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
+
+            self.image.set_colorkey(VERDE) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
+
+            # Obtiene el rectángulo (sprite) de la imagen del jugador para poder manipularlo
+            self.rect = self.image.get_rect()
+
+            # Hacemos que el enemigo pueda aparecer en cualquier lugar de la pantalla de forma aleatoria
+            self.rect.x = random.randrange(ANCHO - self.rect.width) # Con esto vamos a poner como coordenada X del sprite un número aleatorio entre todos los píxeles del ancho de la pantalla y además controlamos que no se coloque fuera de los márgenes de la pantalla ya que tendrá en cuenta el ancho del propio rectángulo
+            self.rect.y = random.randrange(ALTO - self.rect.height) # Con esto hacemos lo mismo pero para la coordenada Y
+
+            # Velocidad inicial del enemigo para que se mueva sin que tenga que ocurrir nada antes
+            #self.velocidad_x = 5
+            #self.velocidad_y = 5
+            # Si en lugar de que se muevan con una velocidad establecida lo hagan con una velocidad alaatoria
+            self.velocidad_x = random.randrange(1, 10) # Con esto la velocidad será entre 1 y 10
+            self.velocidad_y = random.randrange(1, 10)
+
+        def update(self):
+
+            # Actualiza la velocidad del enemigo
+            self.rect.x += self.velocidad_x
+            self.rect.y += self.velocidad_y
+
+            # Limita el margen izquierdo y hacemos que el enemigo rebote
+            if self.rect.left < 0: # Cada vez que toque el borde izquierdo e intente salir de la pantalla 
+                self.velocidad_x += 1 # Hacemos que rebote
+
+            # Limita el margen derecho
+            if self.rect.right > ANCHO:
+                self.velocidad_x -= 1
+
+            # Limita el margen inferior
+            if self.rect.bottom > ALTO:
+                self.velocidad_y -= 1
+
+            # Limita el margen superior
+            if self.rect.top < 0:
+                self.velocidad_y += 1
+
+    # Iniciación de Pygame, creación de la ventana, título y control de reloj.
+    pygame.init()
+    pantalla = pygame.display.set_mode((ANCHO, ALTO))
+    pygame.display.set_caption("Movimiento")
+    clock = pygame.time.Clock() # Para controlar los FPS
+
+    font = pygame.font.SysFont(None, 100)
+
+    # Grupo de sprites
+    sprites = pygame.sprite.Group() # Se agrupan los sprites para que trabajen en un conjunto y se almacene en la variable que queramos
+    spritesEnemigos = pygame.sprite.Group() # Como vamos a utilizar las colisiones necesitamos tener un grupo dedicado a los enemigos
+
+    max_enemies = 5 # Establecemos el máximo de enemigos
+
+    # Bucle de juego
+    ejecutando = True
+    while ejecutando:
+
+        if queue.qsize() > 0: # Nos aseguramos que la cola tenga elementos antes de intentar obtener uno de ellos
+
+            mensaje = queue.get_nowait()
+
+            # Si el mensaje es None, salimos del bucle y terminamos el hilo
+            if mensaje is None:
+                break
+            # Si recibimos un mensaje de texto
+            if isinstance(mensaje, str):
+
+                if mensaje == 'Init':
+
+                    # EL ORDEN EN EL QUE INSTANCIAMOS LOS SPRITES DETERMINA CUAL APARECE POR ENCIMA DE OTRO, EL ÚLTIMO INSTANCIADO APARECERÁ POR ENCIMA 
+                    
+                    # Instanciación del objeto jugador
+                    jugador = Jugador()
+                    sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
+
+                    lista_enemigos = [] # Creamos la lista de enemigos para guardarnos las referencias y poder borrarlos posteriormente del juego
+                    for x in range(random.randrange(max_enemies) + 1): # Generamos de 1 a 5 enemigos de forma aleatoria (con el +1 nos aseguramos que siempre va a haber por lo menos un enemigo instanciado)
+                        # Creamos el objeto enemigo y añadimos el sprite al conjunto de sprites
+                        enemigo = Enemigo()
+                        lista_enemigos.append(enemigo)
+                        # Nos guardamos la referencia de cada enemigo en una lista para poder borrarlos todos cuando finalice el juego
+                        spritesEnemigos.add(enemigo)
+
+
+                elif mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que se vacie la ventana de juego
+
+                    # Eliminamos los sprites de la pantalla y hacemos que el objeto jugador apunte a null
+                    sprites.remove(jugador) # Eliminamos al personaje de la pantalla
+                    jugador = None
+
+                    for enemigo in lista_enemigos: # Eliminamos todos los enemigos de la pantalla
+                        sprites.remove(enemigo) # Eliminamos el sprite
+                    
+                    lista_enemigos.clear() # Vaciamos la lista de enemigos
+
+                    text = font.render('ENDGAME', True, ROJO)
+
+                    # Obtener las dimensiones del texto
+                    text_width, text_height = font.size("ENDGAME")
+
+                    # Calcular la posición para centrar el texto
+                    x = (ANCHO - text_width) // 2
+                    y = (ALTO - text_height) // 2
+
+                    screen = pygame.display.get_surface()
+                    screen.blit(text, (x,y)) # Vamos a centrar el texto en la ventana de Pygame
+                    pygame.display.update()
+                    time.sleep(5)
+
+                elif mensaje == 'Up' or mensaje == 'Down' or mensaje == 'Left' or mensaje == 'Right' or mensaje == 'UpLeft' or mensaje == 'UpRight' or mensaje == 'DownLeft' or mensaje == 'DownRight': # Si se nos ha pedido mover el personaje
+                    
+                    jugador.ejecutaMovimiento(mensaje)
+
+                    # Dibujamos los sprites en la pantalla
+                    sprites.draw(pantalla)
+
+                    # Actualizamos los sprites
+                    sprites.update()
+
+                    # Actualizamos la pantalla
+                    pygame.display.flip()
+
+        # Es lo que especifica la velocidad del bucle de juego
+        clock.tick(FPS)
+
+        # Eventos
+        for event in pygame.event.get(): # Obtenemos una lista de todos los eventos en la cola de eventos de Pygame, que incluyen eventos del teclado, del mouse, de la ventana, etc.
+            if event.type == pygame.QUIT: # Si el evento es de tipo `QUIT` indica que el usuario ha hecho clic en el botón "X" para cerrar la ventana.
+                ejecutando = False
+                #pygame.quit()
+                #sys.exit()
+
+        # Actualización de sprites
+        sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la pantalla
+        spritesEnemigos.update()
+
+        # Indicamos que el sprite del jugador va a ser el que provoque la colisión sobre el grupo de sprites colisionados (spritesEnemigos) y que no queremos que por defecto haya kill a los enemigos (False)
+        colision = pygame.sprite.spritecollide(jugador, spritesEnemigos, False) 
+
+        # Fondo de pantalla, dibujo de sprites y formas geométricas
+        pantalla.fill(NEGRO) # Establecemos el color de fondo de la pantalla
+
+        # Dibujamos los sprites en la pantalla
+        sprites.draw(pantalla)
+        spritesEnemigos.draw(pantalla)
+
+        pygame.draw.line(pantalla, H_50D2FE, (400, 0), (400, 800), 1)
+        pygame.draw.line(pantalla, AZUL, (0, 300), (800, 300), 1)
+
+        # Actualizamos el contenido de la pantalla
+        pygame.display.flip() # Permite que solo una porción de la pantalla se actualice, en lugar de toda el área de la pantalla. Si no se pasan argumentos, se actualizará la superficie completa.
+
+    pygame.quit()
+
+# Creamos el hilo de Pygame y lo iniciamos
+game_thread = Thread(target=game_thread, args=(queue,))
+game_thread.start()
+
+@ask.launch # Para cuando el usuario lanza la skill
+def start_skill():
+    # Indicamos a pygame que inicie el videojuego
+    queue.put('Init')
+    return question('Bienvenido al videojuego Movimiento. Dime en qué dirección quieres moverte.')
+
+# Definimos la ruta para el intent UpIntent
+@ask.intent('UpIntent')
+def arriba():
+    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
+    queue.put('Up')
+    return question('El personaje se mueve hacia arriba.')
+
+# Definimos la ruta para el intent DownIntent
+@ask.intent('DownIntent')
+def abajo():
+    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
+    queue.put('Down')
+    return question('El personaje se mueve hacia abajo.')
+
+# Definimos la ruta para el intent RightIntent
+@ask.intent('RightIntent')
+def derecha():
+    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
+    queue.put('Right')
+    return question('El personaje se mueve hacia la derecha.')
+
+# Definimos la ruta para el intent DownIntent
+@ask.intent('LeftIntent')
+def izquierda():
+    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
+    queue.put('Left')
+    return question('El personaje se mueve hacia la izquierda.')
+
+# Definimos la ruta para el intent UpLeftIntent
+@ask.intent('UpLeftIntent')
+def arribaIzquierda():
+    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
+    queue.put('UpLeft')
+    return question('El personaje se mueve arriba a la izquierda.')
+
+# Definimos la ruta para el intent UpRightIntent
+@ask.intent('UpRightIntent')
+def arribaDerecha():
+    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
+    queue.put('UpRight')
+    return question('El personaje se mueve arriba a la derecha.')
+
+# Definimos la ruta para el intent DownLeftIntent
+@ask.intent('DownLeftIntent')
+def arribaIzquierda():
+    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
+    queue.put('DownLeft')
+    return question('El personaje se mueve abajo a la izquierda.')
+
+# Definimos la ruta para el intent DownRightIntent
+@ask.intent('DownRightIntent')
+def arribaDerecha():
+    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
+    queue.put('DownRight')
+    return question('El personaje se mueve abajo a la derecha.')
+
+@ask.intent('EndgameIntent')
+def endgame():
+    queue.put('Endgame')
+    return statement('Fin del juego.')
+
+# Definimos la ruta para la página principal de la aplicación web
+@app.route('/')
+def index():
+    return 'Esta es la homepage del videojuego Movimiento.'
+
+if __name__ == '__main__':
+
+    app.run(debug=False) # Si desactivamos el modo debug evitamos que nos abra 2 ventanas de pygame
+    # Cuando la aplicación web se detiene, enviamos un mensaje None a la cola
+    queue.put(None)
+    # Esperamos a que el hilo de Pygame termine
+    game_thread.join()
