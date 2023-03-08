@@ -103,15 +103,6 @@ def game_thread(queue):
             if self.rect.top < 0:
                 self.rect.top = 0
 
-            """
-            # Si queremos limitar aún más el recorrido y no hasta los bordes pues simplemente podemos hacerlo tal que así
-            if self.rect.left < 300:
-                self.rect.left = 300
-
-            if self.rect.right > 500:
-                self.rect.right = 500
-            """        
-
         def ejecutaMovimiento(self, movimiento):
 
             # Velocidad predeterminada cada vuelta del bucle si no pulsas nada
@@ -191,6 +182,10 @@ def game_thread(queue):
             # Obtiene el rectángulo (sprite) de la imagen del jugador para poder manipularlo
             self.rect = self.image.get_rect()
 
+            # Hacemos que el enemigo pueda aparecer en cualquier lugar de la pantalla de forma aleatoria
+            self.rect.x = random.randrange(ANCHO - self.rect.width) # Con esto vamos a poner como coordenada X del sprite un número aleatorio entre todos los píxeles del ancho de la pantalla y además controlamos que no se coloque fuera de los márgenes de la pantalla ya que tendrá en cuenta el ancho del propio rectángulo
+            self.rect.y = random.randrange(ALTO - self.rect.height) # Con esto hacemos lo mismo pero para la coordenada Y
+
     # Bucle de juego
     ejecutando = True
     while ejecutando:
@@ -213,18 +208,23 @@ def game_thread(queue):
 
                 font = pygame.font.SysFont(None, 100)
 
-                # Grupo de sprites, instanciación del objeto jugador.
+                # Grupo de sprites
                 sprites = pygame.sprite.Group() # Se agrupan los sprites para que trabajen en un conjunto y se almacene en la variable que queramos
+                
+                # EL ORDEN EN EL QUE INSTANCIAMOS LOS SPRITES DETERMINA CUAL APARECE POR ENCIMA DE OTRO, EL ÚLTIMO INSTANCIADO APARECERÁ POR ENCIMA 
+                
+                # Instanciación del objeto jugador
                 jugador = Jugador()
                 sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
 
+                for x in range(random.randrange(5) + 1): # Generamos de 1 a 5 enemigos de forma aleatoria (con el +1 nos aseguramos que siempre va a haber por lo menos un enemigo instanciado)
+                    # Creamos el objeto enemigo y añadimos el sprite al conjunto de sprites
+                    enemigo = Enemigo()
+                    sprites.add(enemigo)
+
+
             elif mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que se vacie la ventana de juego
-                #pantalla = pygame.display.get_surface()
-                #pantalla.fill(NEGRO)
-                #pygame.quit()
-                #sys.exit()
-                #pygame.display.update()
-                #ejecutando = False
+
                 text = font.render('ENDGAME', True, ROJO)
 
                 # Obtener las dimensiones del texto
