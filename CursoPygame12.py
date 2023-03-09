@@ -5,6 +5,7 @@ from queue import Queue
 from threading import Thread
 import time
 import random # Para hacer cosas aleatorias
+import requests # Para hacer peticiones a flask-ask desde pygame
 
 app = Flask(__name__)
 ask = Ask(app, '/')
@@ -14,6 +15,36 @@ queue = Queue()
 
 # Función que maneja el hilo de Pygame
 def game_thread(queue):
+
+    def enviar_peticion():
+        url = 'http://localhost:5000/endgame' # Ruta del EndgameIntent
+        payload = {'': ''} # Parámetros del intent
+        headers = {'Content-Type': 'application/json'} # Tipo de contenido de la solicitud
+
+        # Enviar la solicitud POST a la URL del servidor Flask-Ask
+        response = requests.post(url, json=payload, headers=headers)
+
+        # Manejar la respuesta del servidor Flask-Ask
+        if response.status_code == 200:
+            print('Solicitud enviada con éxito')
+        else:
+            print('Error al enviar la solicitud:', response.status_code)
+
+    def enviar_peticion_flask():
+        app = Flask.current.app
+        with app.test_request_context('/endgame'):
+            app.dispatch.request()
+
+    def enviar_peticion_endgame():
+        data = {'request': {'type': 'IntentRequest', 'intent': {'name': 'EndgameIntent'}}}
+        response = requests.post('http://localhost:5000/endgame', json=data)
+        print(response.status_code)  # Imprime '200'
+
+    def end_session():
+        url = "http://localhost:5000"
+        data = {'request': {'type': 'SessionEndedRequest'}}
+        response = requests.post(url, json=data)
+        print(response.status_code)
 
     # Tamaño de la pantalla de Pygame en píxeles
     ANCHO = 800
@@ -252,7 +283,7 @@ def game_thread(queue):
                 if mensaje == 'Init':
 
                     # EL ORDEN EN EL QUE INSTANCIAMOS LOS SPRITES DETERMINA CUAL APARECE POR ENCIMA DE OTRO, EL ÚLTIMO INSTANCIADO APARECERÁ POR ENCIMA 
-                    
+
                     sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
 
                     for x in range(random.randrange(max_enemies) + 1): # Generamos de 1 a "max_enemies" enemigos de forma aleatoria (con el +1 nos aseguramos que siempre va a haber por lo menos un enemigo instanciado)
@@ -292,6 +323,7 @@ def game_thread(queue):
                     screen = pygame.display.get_surface()
                     screen.blit(text, (x,y)) # Vamos a centrar el texto en la ventana de Pygame
                     pygame.display.update()
+                    #end_session()
                     time.sleep(5)
 
                 elif mensaje == 'Up' or mensaje == 'Down' or mensaje == 'Left' or mensaje == 'Right' or mensaje == 'UpLeft' or mensaje == 'UpRight' or mensaje == 'DownLeft' or mensaje == 'DownRight': # Si se nos ha pedido mover el personaje
@@ -326,7 +358,8 @@ def game_thread(queue):
         if colision: # Si se produce una colisión, es decir, si los enemigos alcanzan al jugador termina la partida
             jugador.image = pygame.image.load("Imagenes/Enemigo.png").convert() # El jugador ha sido infectado y por ello modificamos su imagen
             #jugador.image.set_colorkey(VERDE) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
-            queue.put('Endgame') # Terminamos la partida 
+            #queue.put('Endgame') # Terminamos la partida
+            #enviar_peticion_endgame() 
 
         # Fondo de pantalla, dibujo de sprites y formas geométricas
         pantalla.fill(NEGRO) # Establecemos el color de fondo de la pantalla
@@ -351,7 +384,8 @@ game_thread.start()
 def start_skill():
     # Indicamos a pygame que inicie el videojuego
     queue.put('Init')
-    return question('Bienvenido al videojuego Movimiento. Dime en qué dirección quieres moverte.')
+    return question('Bienvenido al videojuego Movimiento. Dime en qué dirección quieres moverte.') \
+        .reprompt("Perdona, no te he entendido. ¿Puedes decirme en qué dirección quieres moverte?")
 
 # Definimos la ruta para el intent UpIntent
 @ask.intent('UpIntent')
@@ -418,6 +452,15 @@ def endgame():
 @app.route('/')
 def index():
     return 'Esta es la homepage del videojuego Movimiento.'
+
+# Definimos la ruta para la página principal de la aplicación web
+@app.route('/endgame', methods=['POST'])
+def endgame_post():
+    return "Petición POST exitosa", 200
+
+@ask.session_ended
+def session_ended():
+    return "¡Fin del juego desde sesion terminada!", 200
 
 if __name__ == '__main__':
 
