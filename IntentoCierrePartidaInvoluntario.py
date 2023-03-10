@@ -5,6 +5,7 @@ from queue import Queue
 from threading import Thread
 import time
 import random # Para hacer cosas aleatorias
+import requests # Para hacer peticiones a flask-ask desde pygame
 
 app = Flask(__name__)
 ask = Ask(app, '/')
@@ -14,6 +15,36 @@ queue = Queue()
 
 # Función que maneja el hilo de Pygame
 def game_thread(queue):
+
+    def enviar_peticion():
+        url = 'http://localhost:5000/endgame' # Ruta del EndgameIntent
+        payload = {'': ''} # Parámetros del intent
+        headers = {'Content-Type': 'application/json'} # Tipo de contenido de la solicitud
+
+        # Enviar la solicitud POST a la URL del servidor Flask-Ask
+        response = requests.post(url, json=payload, headers=headers)
+
+        # Manejar la respuesta del servidor Flask-Ask
+        if response.status_code == 200:
+            print('Solicitud enviada con éxito')
+        else:
+            print('Error al enviar la solicitud:', response.status_code)
+
+    def enviar_peticion_flask():
+        app = Flask.current.app
+        with app.test_request_context('/endgame'):
+            app.dispatch.request()
+
+    def enviar_peticion_endgame():
+        data = {'request': {'type': 'IntentRequest', 'intent': {'name': 'EndgameIntent'}}}
+        response = requests.post('http://localhost:5000/endgame', json=data)
+        print(response.status_code)  # Imprime '200'
+
+    def end_session():
+        url = "http://localhost:5000"
+        data = {'request': {'type': 'SessionEndedRequest'}}
+        response = requests.post(url, json=data)
+        print(response.status_code)
 
     # Tamaño de la pantalla de Pygame en píxeles
     ANCHO = 800
@@ -44,7 +75,7 @@ def game_thread(queue):
             self.image = pygame.image.load("Imagenes/Personaje.png").convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
             #self.image.fill(H_FA2F2F) # No indicamos ningún color al sprite porque queremos que se muestre la imagen
 
-            self.image.set_colorkey(VERDE) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
+            #self.image.set_colorkey(VERDE) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
 
             # Obtiene el rectángulo (sprite) de la imagen del jugador para poder manipularlo
             self.rect = self.image.get_rect()
@@ -177,7 +208,7 @@ def game_thread(queue):
             # Rectángulo (enemigo), recordemos que las imágenes en Pygame son rectángulos
             self.image = pygame.image.load("Imagenes/Enemigo.png").convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
 
-            self.image.set_colorkey(VERDE) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
+            #self.image.set_colorkey(VERDE) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
 
             # Obtiene el rectángulo (sprite) de la imagen del jugador para poder manipularlo
             self.rect = self.image.get_rect()
@@ -190,8 +221,8 @@ def game_thread(queue):
             #self.velocidad_x = 5
             #self.velocidad_y = 5
             # Si en lugar de que se muevan con una velocidad establecida lo hagan con una velocidad alaatoria
-            self.velocidad_x = random.randrange(1, 10) # Con esto la velocidad será entre 1 y 10
-            self.velocidad_y = random.randrange(1, 10)
+            self.velocidad_x = random.randrange(1, 2) # Con esto la velocidad será entre 1 y 2
+            self.velocidad_y = random.randrange(1, 2)
 
         def update(self):
 
@@ -227,15 +258,13 @@ def game_thread(queue):
     sprites = pygame.sprite.Group() # Se agrupan los sprites para que trabajen en un conjunto y se almacene en la variable que queramos
     spritesEnemigos = pygame.sprite.Group() # Como vamos a utilizar las colisiones necesitamos tener un grupo dedicado a los enemigos
 
-    max_enemies = 5 # Establecemos el máximo de enemigos
+    max_enemies = 2 # Establecemos el máximo de enemigos
 
-    # Instanciación del objeto jugador
-    jugador = Jugador()
+    # EL ORDEN EN EL QUE INSTANCIAMOS LOS SPRITES DETERMINA CUAL APARECE POR ENCIMA DE OTRO, EL ÚLTIMO INSTANCIADO APARECERÁ POR ENCIMA 
 
-    # Creamos el objeto enemigo
-    enemigo = Enemigo()
+    jugador = Jugador() # Instanciación del objeto jugador
 
-    #lista_enemigos = [] # Creamos la lista de enemigos para guardarnos las referencias y poder borrarlos posteriormente del juego
+    lista_enemigos = [] # Creamos la lista de enemigos para guardarnos las referencias y poder borrarlos posteriormente del juego
 
     # Bucle de juego
     ejecutando = True
@@ -254,14 +283,19 @@ def game_thread(queue):
                 if mensaje == 'Init':
 
                     # EL ORDEN EN EL QUE INSTANCIAMOS LOS SPRITES DETERMINA CUAL APARECE POR ENCIMA DE OTRO, EL ÚLTIMO INSTANCIADO APARECERÁ POR ENCIMA 
-                    
+
                     sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
 
-                    """for x in range(random.randrange(max_enemies) + 1): # Generamos de 1 a 5 enemigos de forma aleatoria (con el +1 nos aseguramos que siempre va a haber por lo menos un enemigo instanciado)
-                        lista_enemigos.append(enemigo) # Nos guardamos la referencia de cada enemigo en una lista para poder borrarlos todos cuando finalice el juego
+                    for x in range(random.randrange(max_enemies) + 1): # Generamos de 1 a "max_enemies" enemigos de forma aleatoria (con el +1 nos aseguramos que siempre va a haber por lo menos un enemigo instanciado)
+                        # Creamos el objeto enemigo y lo añadimos a la lista
+                        enemigo = Enemigo()
+                        lista_enemigos.append(enemigo)
+                        spritesEnemigos.add(enemigo)
+
+                    """for enemigo in lista_enemigos: # Generamos de 1 a 5 enemigos de forma aleatoria (con el +1 nos aseguramos que siempre va a haber por lo menos un enemigo instanciado)
+                        # Añadimos el sprite de cada enemigo al conjunto de sprites
                         spritesEnemigos.add(enemigo)"""
-                    
-                    spritesEnemigos.add(enemigo)
+
 
                 elif mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que se vacie la ventana de juego
 
@@ -273,9 +307,9 @@ def game_thread(queue):
                     
                     jugador.kill() 
 
-                    #spritesEnemigos.empty()
+                    spritesEnemigos.empty()
                     
-                    #lista_enemigos.clear() # Vaciamos la lista de enemigos
+                    lista_enemigos.clear() # Vaciamos la lista de enemigos
 
                     text = font.render('ENDGAME', True, ROJO)
 
@@ -319,19 +353,21 @@ def game_thread(queue):
         sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la pantalla
         spritesEnemigos.update()
 
-                # Indicamos que el sprite de los enemigos va a ser el que provoque la colisión sobre el grupo de sprites colisionados (spritesEnemigos) y que no queremos que por defecto haya kill a los enemigos (False)
-        colision = pygame.sprite.spritecollide(jugador, spritesEnemigos, False)
-        if colision:
-            enemigo.image = pygame.image.load("Imagenes/Sangre.png").convert()
-            enemigo.image.set_colorkey(ROJO)
-            enemigo.velocidad_y += 10 # Hacemos que el enemigo eliminado caiga hacia abajo
-        elif enemigo.rect.top > ALTO:
-            enemigo.kill()
+        # Indicamos que el sprite de los enemigos va a ser el que provoque la colisión sobre el grupo de sprites colisionados (spritesEnemigos) y que no queremos que por defecto haya kill a los enemigos (False)
+        colision = pygame.sprite.spritecollide(jugador, spritesEnemigos, False) 
+        if colision: # Si se produce una colisión, es decir, si los enemigos alcanzan al jugador termina la partida
+            jugador.image = pygame.image.load("Imagenes/Enemigo.png").convert() # El jugador ha sido infectado y por ello modificamos su imagen
+            #jugador.image.set_colorkey(VERDE) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
+            #queue.put('Endgame') # Terminamos la partida
+            #enviar_peticion_endgame() 
 
         # Fondo de pantalla, dibujo de sprites y formas geométricas
         pantalla.fill(NEGRO) # Establecemos el color de fondo de la pantalla
-        sprites.draw(pantalla) # Dibujamos los sprites en la pantalla
+
+        # Dibujamos los sprites en la pantalla
+        sprites.draw(pantalla)
         spritesEnemigos.draw(pantalla)
+
         pygame.draw.line(pantalla, H_50D2FE, (400, 0), (400, 800), 1)
         pygame.draw.line(pantalla, AZUL, (0, 300), (800, 300), 1)
 
@@ -348,7 +384,8 @@ game_thread.start()
 def start_skill():
     # Indicamos a pygame que inicie el videojuego
     queue.put('Init')
-    return question('Bienvenido al videojuego Movimiento. Dime en qué dirección quieres moverte.')
+    return question('Bienvenido al videojuego Movimiento. Dime en qué dirección quieres moverte.') \
+        .reprompt("Perdona, no te he entendido. ¿Puedes decirme en qué dirección quieres moverte?")
 
 # Definimos la ruta para el intent UpIntent
 @ask.intent('UpIntent')
@@ -415,6 +452,15 @@ def endgame():
 @app.route('/')
 def index():
     return 'Esta es la homepage del videojuego Movimiento.'
+
+# Definimos la ruta para la página principal de la aplicación web
+@app.route('/endgame', methods=['POST'])
+def endgame_post():
+    return "Petición POST exitosa", 200
+
+@ask.session_ended
+def session_ended():
+    return "¡Fin del juego desde sesion terminada!", 200
 
 if __name__ == '__main__':
 
