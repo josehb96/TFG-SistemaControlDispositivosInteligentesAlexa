@@ -354,9 +354,9 @@ def game_thread(queue):
         rectangulo = pygame.Rect(x, y, calculo_barra, ancho) # Creamos el rectángulo de la barra de vida
         pygame.draw.rect(pantalla, AZUL2, borde, 3)
         pygame.draw.rect(pantalla, H_50D2FE, rectangulo)
-        pantalla.blit(pygame.trasnform.scale(jugador.image, (25,25)), (545,15))
-        warning = pygame.image.load("../Imagenes/Warning.png").convert()
-        warning.image.set_colorkey(VERDE)
+        pantalla.blit(pygame.transform.scale(jugador.image, (25,25)), (545,15))
+        warning = pygame.image.load("../Imagenes/WarningMini.png")
+        warning.set_colorkey(VERDE)
 
         if jugador.hp < 0:
             jugador.hp = 0
@@ -384,8 +384,8 @@ def game_thread(queue):
 
     max_enemies = 5 # Establecemos el máximo de enemigos
 
-    # Instanciación del objeto jugador
     jugador = Jugador()
+    sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
 
     '''# Instanciación de los objetos enemigos
     enemigoNivel1 = Enemigo("../Imagenes/Enemigo1.png", AZUL, 35, 2)
@@ -418,8 +418,6 @@ def game_thread(queue):
                 if mensaje == 'Init': # Si se recibe este mensaje es para introducir al jugador en la partida
 
                     # EL ORDEN EN EL QUE INSTANCIAMOS LOS SPRITES DETERMINA CUAL APARECE POR ENCIMA DE OTRO, EL ÚLTIMO INSTANCIADO APARECERÁ POR ENCIMA 
-                    
-                    sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
 
                     """for x in range(random.randrange(max_enemies) + 1): # Generamos de 1 a 5 enemigos de forma aleatoria (con el +1 nos aseguramos que siempre va a haber por lo menos un enemigo instanciado)
                         lista_enemigos.append(enemigo) # Nos guardamos la referencia de cada enemigo en una lista para poder borrarlos todos cuando finalice el juego
@@ -494,17 +492,29 @@ def game_thread(queue):
         spritesVirus.update()
 
         # Instanciación de los virus
-        if not virus:
+        if not spritesVirus:
             for x in range(2):
                 virus = Virus()
                 spritesVirus.add(virus)
+
+        # ESTO ES PARA HACER PRUEBAS PARA QUE EL JUEGO NO SE QUEDE VACÍO AL ACABAR CON TODOS LOS ENEMIGOS
+        if not spritesEnemigosNivel1 and not spritesEnemigosNivel2 and not spritesEnemigosNivel3:
+
+            enemigoNivel1 = Enemigo("../Imagenes/Enemigo1.png", AZUL, 35, 2, 15)
+            spritesEnemigosNivel1.add(enemigoNivel1)
+
+            enemigoNivel2 = Enemigo("../Imagenes/Enemigo2.png", VERDE, 35, 3, 30)
+            spritesEnemigosNivel2.add(enemigoNivel2)
+
+            enemigoNivel3 = Enemigo("../Imagenes/Enemigo3.png", VERDE, 35, 4, 45)
+            spritesEnemigosNivel3.add(enemigoNivel3)
 
         colision_disparos_virus = pygame.sprite.groupcollide(spritesVirus, spritesBalas, True, True, pygame.sprite.collide_circle)
 
         if colision_disparos_virus:
             puntuacion += 25
 
-        colision_jugador_virus: pygame.sprite.spritecollide(jugador, spritesVirus, pygame.sprite.collide_circle)
+        colision_jugador_virus = pygame.sprite.spritecollide(jugador, spritesVirus, pygame.sprite.collide_circle)
 
         if colision_jugador_virus:
             sonidoHerido.play()
@@ -601,18 +611,6 @@ def game_thread(queue):
         if jugador.hp <= 0: # Si el jugador se queda sin vida se termina el juego
             ejecutando = False
 
-        # ESTO ES PARA HACER PRUEBAS PARA QUE EL JUEGO NO SE QUEDE VACÍO AL ACABAR CON TODOS LOS ENEMIGOS
-        if not spritesEnemigosNivel1 and not spritesEnemigosNivel2 and not spritesEnemigosNivel3:
-
-            enemigoNivel1 = Enemigo("../Imagenes/Enemigo1.png", AZUL, 35, 2, 15)
-            spritesEnemigosNivel1.add(enemigoNivel1)
-
-            enemigoNivel2 = Enemigo("../Imagenes/Enemigo2.png", VERDE, 35, 3, 30)
-            spritesEnemigosNivel2.add(enemigoNivel2)
-
-            enemigoNivel3 = Enemigo("../Imagenes/Enemigo3.png", VERDE, 35, 4, 45)
-            spritesEnemigosNivel3.add(enemigoNivel3)
-
         # Fondo de pantalla, dibujo de sprites y formas geométricas
         pantalla.fill(NEGRO) # Establecemos el color de fondo de la pantalla
         sprites.draw(pantalla) # Dibujamos los sprites en la pantalla
@@ -625,7 +623,7 @@ def game_thread(queue):
         pygame.draw.line(pantalla, AZUL, (0, 300), (800, 300), 1)
 
         # Dibuja los textos en la pantalla
-        muestra_texto(pantalla, consolas, str(puntuacion).zfill(5), VERDE, 40, 680, 60) # Mostramos la puntuación en la pantalla
+        muestra_texto(pantalla, consolas, str(puntuacion).zfill(5), ROJO, 40, 680, 60) # Mostramos la puntuación en la pantalla
 
         # Mostramos la barra del jugador actualizada
         barra_hp(pantalla, 580, 15, jugador.hp)
