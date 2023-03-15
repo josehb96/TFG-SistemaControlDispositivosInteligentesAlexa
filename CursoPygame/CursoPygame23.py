@@ -96,6 +96,9 @@ def game_thread(queue):
             # Barra de vida
             self.hp = 100
 
+            # Añadimos vidas
+            self.vidas = 3
+
         def update(self):
 
             # Velocidad predeterminada cada vuelta del bucle si no pulsas nada
@@ -354,15 +357,6 @@ def game_thread(queue):
         rectangulo = pygame.Rect(x, y, calculo_barra, ancho) # Creamos el rectángulo de la barra de vida
         pygame.draw.rect(pantalla, AZUL2, borde, 3)
         pygame.draw.rect(pantalla, H_50D2FE, rectangulo)
-        pantalla.blit(pygame.transform.scale(jugador.image, (25,25)), (545,15))
-        warning = pygame.image.load("../Imagenes/WarningMini.png").convert()
-        warning.set_colorkey(VERDE)
-
-        if jugador.hp < 0:
-            jugador.hp = 0
-        if jugador.hp < 30:
-            pantalla.blit(pygame.transform.scale(warning, (25,25)), (545,15))
-
 
 
     def muestra_texto(pantalla, fuente, texto, color, dimensiones, x, y): 
@@ -608,8 +602,8 @@ def game_thread(queue):
         if enemigoNivel3.hp <= 0:
             enemigoNivel3.kill()
 
-        if jugador.hp <= 0: # Si el jugador se queda sin vida se termina el juego
-            ejecutando = False
+        '''if jugador.hp <= 0: # Si el jugador se queda sin vida se termina el juego
+            ejecutando = False'''
 
         # Fondo de pantalla, dibujo de sprites y formas geométricas
         pantalla.fill(NEGRO) # Establecemos el color de fondo de la pantalla
@@ -621,6 +615,50 @@ def game_thread(queue):
         spritesVirus.draw(pantalla)
         pygame.draw.line(pantalla, H_50D2FE, (400, 0), (400, 800), 1)
         pygame.draw.line(pantalla, AZUL, (0, 300), (800, 300), 1)
+
+        warning = pygame.image.load("../Imagenes/WarningMini.png").convert()
+        warning.set_colorkey(VERDE)
+
+        muerte_3 = pantalla.blit(pygame.transform.scale(jugador.image, (25,25)), (510,15))
+        muerte_2 = pantalla.blit(pygame.transform.scale(jugador.image, (25,25)), (475,15))
+        muerte_1 = pantalla.blit(pygame.transform.scale(jugador.image, (25,25)), (440,15))
+        cruz = pygame.image.load("../Imagenes/Cruz.png").convert()
+        cruz.set_colorkey(VERDE)
+
+        if jugador.hp < 30:
+            pantalla.blit(pygame.transform.scale(warning, (25,25)), (545,15))
+
+        if jugador.hp <= 0 and jugador.vidas == 3:
+            jugador.kill() # Eliminamos al jugador de la partida
+            jugador = Jugador() # Y lo respawneamos
+            sprites.add(jugador)
+            jugador.vidas = 2
+
+        if jugador.vidas == 2:
+            if jugador.hp <= 0:
+                jugador.kill() # Eliminamos al jugador de la partida
+                jugador = Jugador() # Y lo respawneamos
+                sprites.add(jugador)
+                jugador.vidas = 1
+            muerte_1 = pantalla.blit(pygame.transform.scale(cruz, (25,25)), (510,15))
+
+        if jugador.vidas == 1:
+            if jugador.hp <= 0:
+                jugador.kill() # Eliminamos al jugador de la partida
+                jugador = Jugador() # Y lo respawneamos
+                sprites.add(jugador)
+                jugador.vidas = 0
+            muerte_1 = pantalla.blit(pygame.transform.scale(cruz, (25,25)), (510,15))
+            muerte_2 = pantalla.blit(pygame.transform.scale(cruz, (25,25)), (475,15))
+
+        if jugador.vidas == 0:
+            if jugador.hp <= 0:
+                jugador.kill() # Eliminamos al jugador de la partida
+                jugador.hp = 0
+            muerte_1 = pantalla.blit(pygame.transform.scale(cruz, (25,25)), (510,15))
+            muerte_2 = pantalla.blit(pygame.transform.scale(cruz, (25,25)), (475,15))
+            muerte_3 = pantalla.blit(pygame.transform.scale(cruz, (25,25)), (440,15))
+            break
 
         # Dibuja los textos en la pantalla
         muestra_texto(pantalla, consolas, str(puntuacion).zfill(5), ROJO, 40, 680, 60) # Mostramos la puntuación en la pantalla
