@@ -712,12 +712,11 @@ def game_thread(queue):
 
         pygame.quit()
 
-# Creamos el hilo de Pygame y lo iniciamos
-game_thread = Thread(target=game_thread, args=(queue,))
-game_thread.start()
-
 @ask.launch # Para cuando el usuario lanza la skill
 def start_skill():
+    # Creamos el hilo de Pygame y lo iniciamos
+    pygame_thread = Thread(target=game_thread, args=(queue,))
+    pygame_thread.start()
     # Indicamos a pygame que inicie el videojuego
     queue.put('Init')
     return question('Bienvenido al videojuego Movimiento. Dime en qué dirección quieres moverte.')
