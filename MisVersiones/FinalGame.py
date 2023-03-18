@@ -164,38 +164,38 @@ def game_thread(queue):
             self.velocidad_y = 0
 
             # Mueve el personaje hacia la izquierda
-            if movimiento == 'Left':
+            if movimiento == 'izquierda':
                 self.velocidad_x = -50 # Cada vez que se pulse la tecla se moverá 10px a la izquierda
             
             # Mueve el personaje hacia la derecha
-            elif movimiento == 'Right':
+            elif movimiento == 'derecha':
                 self.velocidad_x = 50
 
             # Mueve el personaje hacia arriba
-            elif movimiento == 'Up':
+            elif movimiento == 'arriba':
                 self.velocidad_y = -50 # Cada vez que se pulse la tecla se moverá 10px hacia arriba
             
             # Mueve el personaje hacia abajo
-            elif movimiento == 'Down':
+            elif movimiento == 'abajo':
                 self.velocidad_y = 50
 
             # Mueve el personaje hacia arriba a la izquierda
-            elif movimiento == 'UpLeft':
+            elif movimiento == 'arriba izquierda':
                 self.velocidad_x = -50
                 self.velocidad_y = -50 
             
             # Mueve el personaje hacia arriba a la derecha
-            elif movimiento == 'UpRight':
+            elif movimiento == 'arriba derecha':
                 self.velocidad_x = 50
                 self.velocidad_y = -50
 
             # Mueve el personaje hacia abajo a la izquierda
-            elif movimiento == 'DownLeft':
+            elif movimiento == 'abajo izquierda':
                 self.velocidad_y = 50
                 self.velocidad_x = -50
             
             # Mueve el personaje hacia abaja a la derecha
-            elif movimiento == 'DownRight':
+            elif movimiento == 'abajo derecha':
                 self.velocidad_y = 50
                 self.velocidad_x = 50
 
@@ -457,9 +457,22 @@ def game_thread(queue):
                         time.sleep(10)
                         ejecutando = False # Indicamos que el bucle de juego va a terminar'''
 
-                    elif mensaje == 'Up' or mensaje == 'Down' or mensaje == 'Left' or mensaje == 'Right' or mensaje == 'UpLeft' or mensaje == 'UpRight' or mensaje == 'DownLeft' or mensaje == 'DownRight': # Si se nos ha pedido mover el personaje
+                    elif mensaje == 'arriba' or mensaje == 'abajo' or mensaje == 'izquierda' or mensaje == 'derecha' or mensaje == 'arriba izquierda' or mensaje == 'arriba derecha' or mensaje == 'abajo izquierda' or mensaje == 'abajo derecha': # Si se nos ha pedido mover el personaje
                         
                         jugador.ejecutaMovimiento(mensaje)
+
+                        # Dibujamos los sprites en la pantalla
+                        sprites.draw(pantalla)
+
+                        # Actualizamos los sprites
+                        sprites.update()
+
+                        # Actualizamos la pantalla
+                        pygame.display.flip()
+
+                    elif mensaje == 'Dispara':
+
+                        jugador.disparo()
 
                         # Dibujamos los sprites en la pantalla
                         sprites.draw(pantalla)
@@ -578,7 +591,7 @@ def game_thread(queue):
                 puntuacion += 10
                 impactoDisparo.play()
                 #impactos_random[random.randrange(0,3)].play() # Si queremos que el sonido sea aleatorio
-                enemigoNivel1.hp -= 5
+                enemigoNivel1.hp -= 15
 
             if enemigoNivel1.hp <= 0:
                 enemigoNivel1.kill()
@@ -589,7 +602,7 @@ def game_thread(queue):
                 puntuacion += 20
                 impactoDisparo.play()
                 #impactos_random[random.randrange(0,3)].play() # Si queremos que el sonido sea aleatorio
-                enemigoNivel2.hp -= 5
+                enemigoNivel2.hp -= 15
 
             if enemigoNivel2.hp <= 0:
                 enemigoNivel2.kill()
@@ -600,7 +613,7 @@ def game_thread(queue):
                 puntuacion += 30
                 impactoDisparo.play()
                 #impactos_random[random.randrange(0,3)].play() # Si queremos que el sonido sea aleatorio
-                enemigoNivel3.hp -= 5
+                enemigoNivel3.hp -= 15
 
             if enemigoNivel3.hp <= 0:
                 enemigoNivel3.kill()
@@ -712,6 +725,8 @@ def game_thread(queue):
 
         pygame.quit()
 
+pygame_thread = None
+
 @ask.launch # Para cuando el usuario lanza la skill
 def start_skill():
     # Creamos el hilo de Pygame y lo iniciamos
@@ -719,63 +734,19 @@ def start_skill():
     pygame_thread.start()
     # Indicamos a pygame que inicie el videojuego
     queue.put('Init')
-    return question('Bienvenido al videojuego Movimiento. Dime en qué dirección quieres moverte.')
+    return question('Bienvenido al videojuego Exterminador. Dime en qué dirección quieres moverte o si deseas disparar.')
 
-# Definimos la ruta para el intent UpIntent
-@ask.intent('UpIntent')
-def arriba():
+@ask.intent('MovementIntent')
+def realiza_movimiento(direccion):
     # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
-    queue.put('Up')
-    return question('El personaje se mueve hacia arriba.')
+    queue.put(direccion)
+    return question('El personaje se mueve hacia ' + direccion)
 
-# Definimos la ruta para el intent DownIntent
-@ask.intent('DownIntent')
-def abajo():
-    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
-    queue.put('Down')
-    return question('El personaje se mueve hacia abajo.')
-
-# Definimos la ruta para el intent RightIntent
-@ask.intent('RightIntent')
-def derecha():
-    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
-    queue.put('Right')
-    return question('El personaje se mueve hacia la derecha.')
-
-# Definimos la ruta para el intent DownIntent
-@ask.intent('LeftIntent')
-def izquierda():
-    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
-    queue.put('Left')
-    return question('El personaje se mueve hacia la izquierda.')
-
-# Definimos la ruta para el intent UpLeftIntent
-@ask.intent('UpLeftIntent')
-def arribaIzquierda():
-    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
-    queue.put('UpLeft')
-    return question('El personaje se mueve arriba a la izquierda.')
-
-# Definimos la ruta para el intent UpRightIntent
-@ask.intent('UpRightIntent')
-def arribaDerecha():
-    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
-    queue.put('UpRight')
-    return question('El personaje se mueve arriba a la derecha.')
-
-# Definimos la ruta para el intent DownLeftIntent
-@ask.intent('DownLeftIntent')
-def arribaIzquierda():
-    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
-    queue.put('DownLeft')
-    return question('El personaje se mueve abajo a la izquierda.')
-
-# Definimos la ruta para el intent DownRightIntent
-@ask.intent('DownRightIntent')
-def arribaDerecha():
-    # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
-    queue.put('DownRight')
-    return question('El personaje se mueve abajo a la derecha.')
+@ask.intent('ShootIntent')
+def realiza_disparo():
+    # Indicamos al videojuego que dispare
+    queue.put("Dispara")
+    return question('El personaje ha disparado')
 
 @ask.intent('EndgameIntent')
 def endgame():
@@ -793,4 +764,4 @@ if __name__ == '__main__':
     # Cuando la aplicación web se detiene, enviamos un mensaje None a la cola
     queue.put(None)
     # Esperamos a que el hilo de Pygame termine
-    game_thread.join()
+    #pygame_thread.join()
