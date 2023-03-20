@@ -224,6 +224,17 @@ def game_thread(queue):
             bala = Disparo(self.rect.right -20 , self.rect.centery + 7)
             spritesBalas.add(bala)
             sonidoDisparo.play() # Para activar el sonido al disparar
+
+        def disparoDireccion(self, direccion):
+            if direccion == "dispara derecha":
+                #bala = Disparo(self.rect.centerx, self.rect.top + 20) # Hacemos que la bala se instancie en el centro del rectángulo del jugador y además arriba del rectángulo del jugador
+                bala = DisparoDireccion(self.rect.right -20 , self.rect.centery + 7, direccion)
+                spritesBalas.add(bala)
+                sonidoDisparo.play() # Para activar el sonido al disparar
+            elif direccion == "dispara izquierda":
+                bala = DisparoDireccion(self.rect.left +20 , self.rect.centery + 7, direccion)
+                spritesBalas.add(bala)
+                sonidoDisparo.play() # Para activar el sonido al disparar
             
         """# Podemos aumentar el número de "cañones de disparo"
         def disparo2(self):
@@ -309,6 +320,28 @@ def game_thread(queue):
             #self.rect.y -= 25 # Con esto conseguimos que las balas vayan hacia arriba
             if self.rect.bottom < 0: # Cuando la bala salga por la parte superior de la pantalla
                 self.kill() # Elimina dicha bala
+
+    class DisparoDireccion(pygame.sprite.Sprite):
+        def __init__(self, x, y, direccionDisparo): # Los parámetros x e y son para indicar la posición exacta de la zona donde se van a generar los disparos
+            super().__init__()
+            self.image = pygame.transform.scale(pygame.image.load("../Imagenes/bala.png").convert(), (20, 20)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
+            self.image.set_colorkey(VERDE)
+            self.rect = self.image.get_rect() # Obtenemos el rectángulo de la imagen
+            self.rect.bottom = y # La posición y va a ser la parte baja del rectángulo de la bala
+            self.rect.centerx = x # Centramos a la posición de en medio del rectángulo del jugador
+            self.direccion = direccionDisparo
+                    
+        def update(self):
+            if self.direccion == "dispara derecha":
+                self.rect.x += 25
+                #self.rect.y -= 25 # Con esto conseguimos que las balas vayan hacia arriba
+                if self.rect.bottom < 0: # Cuando la bala salga por la parte superior de la pantalla
+                    self.kill() # Elimina dicha bala
+            elif self.direccion == "dispara izquierda":
+                self.rect.x -= 25
+                #self.rect.y -= 25 # Con esto conseguimos que las balas vayan hacia arriba
+                if self.rect.bottom < 0: # Cuando la bala salga por la parte superior de la pantalla
+                    self.kill() # Elimina dicha bala
 
     class Virus(pygame.sprite.Sprite):
         def __init__(self):
@@ -427,7 +460,7 @@ def game_thread(queue):
 
                         puntuacion = 0 # Reiniciamos la puntuación'''
 
-                    if mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que se vacie la ventana de juego
+                    if mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que termine la ejecución del juego
 
                         """sprites.remove(jugador) # Eliminamos al personaje de la pantalla
                         #jugador = None
@@ -441,10 +474,12 @@ def game_thread(queue):
                         
                         #lista_enemigos.clear() # Vaciamos la lista de enemigos
                         
-                        '''text = font.render('ENDGAME', True, ROJO)
+                        font = pygame.font.SysFont(None, 100)
+
+                        text = font.render('GAME OVER', True, ROJO)
 
                         # Obtener las dimensiones del texto
-                        text_width, text_height = font.size("ENDGAME")
+                        text_width, text_height = font.size("GAME OVER")
 
                         # Calcular la posición para centrar el texto
                         x = (ANCHO - text_width) // 2
@@ -452,10 +487,10 @@ def game_thread(queue):
 
                         screen = pygame.display.get_surface()
                         screen.blit(text, (x,y)) # Vamos a centrar el texto en la ventana de Pygame
-                        pygame.display.update()
+                        pygame.display.update() 
                         #end_session()
-                        time.sleep(10)
-                        ejecutando = False # Indicamos que el bucle de juego va a terminar'''
+                        time.sleep(5)
+                        ejecutando = False # Indicamos que el bucle de juego va a terminar
 
                     elif mensaje == 'arriba' or mensaje == 'abajo' or mensaje == 'izquierda' or mensaje == 'derecha' or mensaje == 'arriba izquierda' or mensaje == 'arriba derecha' or mensaje == 'abajo izquierda' or mensaje == 'abajo derecha': # Si se nos ha pedido mover el personaje
                         
@@ -470,9 +505,18 @@ def game_thread(queue):
                         # Actualizamos la pantalla
                         pygame.display.flip()
 
-                    elif mensaje == 'Dispara':
+                    elif mensaje == "dispara derecha" or mensaje == "dispara izquierda":
 
-                        jugador.disparo()
+                        if mensaje == "dispara derecha":
+                            jugador.image = pygame.image.load("../Imagenes/Personaje.png").convert()
+                            jugador.image.set_colorkey(VERDE)
+
+                        elif mensaje == "dispara izquierda":
+                            jugador.image = pygame.image.load("../Imagenes/PersonajeGirado.png").convert()
+                            jugador.image.set_colorkey(VERDE)
+
+
+                        jugador.disparoDireccion(mensaje)
 
                         # Dibujamos los sprites en la pantalla
                         sprites.draw(pantalla)
@@ -629,8 +673,8 @@ def game_thread(queue):
             spritesEnemigosNivel3.draw(pantalla)
             spritesBalas.draw(pantalla)
             spritesVirus.draw(pantalla)
-            pygame.draw.line(pantalla, H_50D2FE, (400, 0), (400, 800), 1)
-            pygame.draw.line(pantalla, AZUL, (0, 300), (800, 300), 1)
+            #pygame.draw.line(pantalla, H_50D2FE, (400, 0), (400, 800), 1)
+            #pygame.draw.line(pantalla, AZUL, (0, 300), (800, 300), 1)
 
             warning = pygame.image.load("../Imagenes/WarningMini.png").convert()
             warning.set_colorkey(VERDE)
@@ -734,7 +778,7 @@ def start_skill():
     pygame_thread.start()
     # Indicamos a pygame que inicie el videojuego
     queue.put('Init')
-    return question('Bienvenido al videojuego Exterminador. Dime en qué dirección quieres moverte o si deseas disparar.')
+    return question('Bienvenido al videojuego Exterminador.')
 
 @ask.intent('MovementIntent')
 def realiza_movimiento(direccion):
@@ -743,10 +787,10 @@ def realiza_movimiento(direccion):
     return question('El personaje se mueve hacia ' + direccion)
 
 @ask.intent('ShootIntent')
-def realiza_disparo():
+def realiza_disparo(direccion):
     # Indicamos al videojuego que dispare
-    queue.put("Dispara")
-    return question('El personaje ha disparado')
+    queue.put("dispara " + direccion)
+    return question('El personaje ha disparado a la ' + direccion)
 
 @ask.intent('EndgameIntent')
 def endgame():
