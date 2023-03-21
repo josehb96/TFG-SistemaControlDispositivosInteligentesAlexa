@@ -430,11 +430,13 @@ def game_thread(queue):
 
         #lista_enemigos = [] # Creamos la lista de enemigos para guardarnos las referencias y poder borrarlos posteriormente del juego
 
+        fondo = pygame.image.load("../Imagenes/Fondo.png").convert()
+
         # Bucle de juego
         ejecutando = True
         while ejecutando:
 
-            #pantalla.blit(fondo, (0,0)) # Para añadir un fondo de nuestra elección usar esta línea
+            pantalla.blit(pygame.transform.scale(fondo, (800,600)), (0,0)) # Para añadir un fondo de nuestra elección usar esta línea
 
             if queue.qsize() > 0: # Nos aseguramos que la cola tenga elementos antes de intentar obtener uno de ellos
 
@@ -666,7 +668,7 @@ def game_thread(queue):
                 ejecutando = False'''
 
             # Fondo de pantalla, dibujo de sprites y formas geométricas
-            pantalla.fill(NEGRO) # Establecemos el color de fondo de la pantalla
+            #pantalla.fill(NEGRO) # Establecemos el color de fondo de la pantalla
             sprites.draw(pantalla) # Dibujamos los sprites en la pantalla
             spritesEnemigosNivel1.draw(pantalla)
             spritesEnemigosNivel2.draw(pantalla)
@@ -778,7 +780,7 @@ def start_skill():
     pygame_thread.start()
     # Indicamos a pygame que inicie el videojuego
     queue.put('Init')
-    return question('Bienvenido al videojuego Exterminador.')
+    return question('Bienvenido al videojuego Exterminador. Dime en qué dirección quieres moverte o hacia donde deseas disparar.')
 
 @ask.intent('MovementIntent')
 def realiza_movimiento(direccion):
