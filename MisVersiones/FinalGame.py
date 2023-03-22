@@ -101,6 +101,9 @@ def game_thread(queue):
             # Añadimos vidas
             self.vidas = 3
 
+            # A qué dirección está apuntando actualmente el jugador
+            self.direccionApuntado = "derecha" # Inicialmente siempre apunta a la derecha
+
         def update(self):
 
             # Velocidad predeterminada cada vuelta del bucle si no pulsas nada
@@ -226,12 +229,12 @@ def game_thread(queue):
             sonidoDisparo.play() # Para activar el sonido al disparar
 
         def disparoDireccion(self, direccion):
-            if direccion == "dispara derecha":
+            if direccion == "derecha":
                 #bala = Disparo(self.rect.centerx, self.rect.top + 20) # Hacemos que la bala se instancie en el centro del rectángulo del jugador y además arriba del rectángulo del jugador
                 bala = DisparoDireccion(self.rect.right -20 , self.rect.centery + 7, direccion)
                 spritesBalas.add(bala)
                 sonidoDisparo.play() # Para activar el sonido al disparar
-            elif direccion == "dispara izquierda":
+            elif direccion == "izquierda":
                 bala = DisparoDireccion(self.rect.left +20 , self.rect.centery + 7, direccion)
                 spritesBalas.add(bala)
                 sonidoDisparo.play() # Para activar el sonido al disparar
@@ -332,12 +335,12 @@ def game_thread(queue):
             self.direccion = direccionDisparo
                     
         def update(self):
-            if self.direccion == "dispara derecha":
+            if self.direccion == "derecha":
                 self.rect.x += 25
                 #self.rect.y -= 25 # Con esto conseguimos que las balas vayan hacia arriba
                 if self.rect.bottom < 0: # Cuando la bala salga por la parte superior de la pantalla
                     self.kill() # Elimina dicha bala
-            elif self.direccion == "dispara izquierda":
+            elif self.direccion == "izquierda":
                 self.rect.x -= 25
                 #self.rect.y -= 25 # Con esto conseguimos que las balas vayan hacia arriba
                 if self.rect.bottom < 0: # Cuando la bala salga por la parte superior de la pantalla
@@ -507,18 +510,25 @@ def game_thread(queue):
                         # Actualizamos la pantalla
                         pygame.display.flip()
 
-                    elif mensaje == "dispara derecha" or mensaje == "dispara izquierda":
+                    elif "dispara" in mensaje:
 
                         if mensaje == "dispara derecha":
                             jugador.image = pygame.image.load("../Imagenes/Personaje.png").convert()
                             jugador.image.set_colorkey(VERDE)
+                            jugador.direccionApuntado = "derecha"
+                            jugador.disparoDireccion("derecha")
 
                         elif mensaje == "dispara izquierda":
                             jugador.image = pygame.image.load("../Imagenes/PersonajeGirado.png").convert()
                             jugador.image.set_colorkey(VERDE)
-
-
-                        jugador.disparoDireccion(mensaje)
+                            jugador.direccionApuntado = "izquierda"
+                            jugador.disparoDireccion("izquierda")
+                        
+                        elif mensaje == "dispara direccion actual":
+                            if jugador.direccionApuntado == "derecha":
+                                jugador.disparoDireccion("derecha")
+                            elif jugador.direccionApuntado == "izquierda":
+                                jugador.disparoDireccion("izquierda")
 
                         # Dibujamos los sprites en la pantalla
                         sprites.draw(pantalla)
@@ -788,7 +798,7 @@ def realiza_movimiento(direccion):
     queue.put(direccion)
     return question('El personaje se mueve hacia ' + direccion)
 
-@ask.intent('ShootIntent')
+@ask.intent('ShootIntent', default={'direccion':'direccion actual'})
 def realiza_disparo(direccion):
     # Indicamos al videojuego que dispare
     queue.put("dispara " + direccion)
