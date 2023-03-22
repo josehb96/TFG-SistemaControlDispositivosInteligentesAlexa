@@ -134,7 +134,7 @@ def game_thread(queue):
             if teclas[pygame.K_SPACE]:
                 ahora = pygame.time.get_ticks() # Obtenemos el tiempo actual del disparo
                 if ahora - self.ultimo_disparo > self.cadencia: # Si han pasado más de 750ms entre el disparo actual y el último
-                    jugador.disparo()
+                    jugador.disparo("derecha")
                     #jugador.disparo2() Por si queremos tener más cañones de disparo
                     #jugador.disparo3()
                     self.ultimo_disparo = ahora # Registramos el momento/instante del disparo actual
@@ -222,20 +222,20 @@ def game_thread(queue):
             if self.rect.top < 0:
                 self.rect.top = 0
 
-        def disparo(self):
+        '''def disparo(self):
             #bala = Disparo(self.rect.centerx, self.rect.top + 20) # Hacemos que la bala se instancie en el centro del rectángulo del jugador y además arriba del rectángulo del jugador
-            bala = Disparo(self.rect.right -20 , self.rect.centery + 7)
+            bala = Disparo(self.rect.right -20 , self.rect.centery + 7, "derecha")
             spritesBalas.add(bala)
-            sonidoDisparo.play() # Para activar el sonido al disparar
+            sonidoDisparo.play() # Para activar el sonido al disparar'''
 
-        def disparoDireccion(self, direccion):
+        def disparo(self, direccion):
             if direccion == "derecha":
                 #bala = Disparo(self.rect.centerx, self.rect.top + 20) # Hacemos que la bala se instancie en el centro del rectángulo del jugador y además arriba del rectángulo del jugador
-                bala = DisparoDireccion(self.rect.right -20 , self.rect.centery + 7, direccion)
+                bala = Disparo(self.rect.right -20 , self.rect.centery + 7, direccion)
                 spritesBalas.add(bala)
                 sonidoDisparo.play() # Para activar el sonido al disparar
             elif direccion == "izquierda":
-                bala = DisparoDireccion(self.rect.left +20 , self.rect.centery + 7, direccion)
+                bala = Disparo(self.rect.left +20 , self.rect.centery + 7, direccion)
                 spritesBalas.add(bala)
                 sonidoDisparo.play() # Para activar el sonido al disparar
             
@@ -309,7 +309,7 @@ def game_thread(queue):
             if self.rect.top < 0:
                 self.velocidad_y += 1
 
-    class Disparo(pygame.sprite.Sprite):
+    '''class Disparo(pygame.sprite.Sprite):
         def __init__(self, x, y): # Los parámetros x e y son para indicar la posición exacta de la zona donde se van a generar los disparos
             super().__init__()
             self.image = pygame.transform.scale(pygame.image.load("../Imagenes/bala.png").convert(), (20, 20)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
@@ -322,9 +322,10 @@ def game_thread(queue):
             self.rect.x += 25
             #self.rect.y -= 25 # Con esto conseguimos que las balas vayan hacia arriba
             if self.rect.bottom < 0: # Cuando la bala salga por la parte superior de la pantalla
-                self.kill() # Elimina dicha bala
+                self.kill() # Elimina dicha bala'''
 
-    class DisparoDireccion(pygame.sprite.Sprite):
+    class Disparo(pygame.sprite.Sprite):
+
         def __init__(self, x, y, direccionDisparo): # Los parámetros x e y son para indicar la posición exacta de la zona donde se van a generar los disparos
             super().__init__()
             self.image = pygame.transform.scale(pygame.image.load("../Imagenes/bala.png").convert(), (20, 20)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
@@ -516,19 +517,19 @@ def game_thread(queue):
                             jugador.image = pygame.image.load("../Imagenes/Personaje.png").convert()
                             jugador.image.set_colorkey(VERDE)
                             jugador.direccionApuntado = "derecha"
-                            jugador.disparoDireccion("derecha")
+                            jugador.disparo("derecha")
 
                         elif mensaje == "dispara izquierda":
                             jugador.image = pygame.image.load("../Imagenes/PersonajeGirado.png").convert()
                             jugador.image.set_colorkey(VERDE)
                             jugador.direccionApuntado = "izquierda"
-                            jugador.disparoDireccion("izquierda")
+                            jugador.disparo("izquierda")
                         
                         elif mensaje == "dispara direccion actual":
                             if jugador.direccionApuntado == "derecha":
-                                jugador.disparoDireccion("derecha")
+                                jugador.disparo("derecha")
                             elif jugador.direccionApuntado == "izquierda":
-                                jugador.disparoDireccion("izquierda")
+                                jugador.disparo("izquierda")
 
                         # Dibujamos los sprites en la pantalla
                         sprites.draw(pantalla)
