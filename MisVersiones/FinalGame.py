@@ -403,7 +403,7 @@ def game_thread(queue):
         # Iniciación de Pygame, creación de la ventana, título y control de reloj.
         pygame.init()
         pantalla = pygame.display.set_mode((ANCHO, ALTO))
-        pygame.display.set_caption("Exterminator")
+        pygame.display.set_caption("Voz Letal")
         clock = pygame.time.Clock() # Para controlar los FPS
 
         # Sistema de puntuaciones
@@ -792,10 +792,12 @@ def start_skill():
     pygame_thread.start()
     # Indicamos a pygame que inicie el videojuego
     queue.put('Init')
-    return question('Bienvenido al videojuego Exterminador. Dime en qué dirección quieres moverte o hacia donde deseas disparar.')
+    return question('Bienvenido al videojuego Voz Letal. Dime en qué dirección quieres moverte o hacia donde deseas disparar.')
 
 @ask.intent('MovementIntent')
 def realiza_movimiento(direccion):
+    if direccion != "arriba" and direccion != "abajo" and direccion != "izquierda" and direccion != "derecha" and direccion != "arriba izquierda" and direccion != "arriba derecha" and direccion != "abajo derecha" and direccion != "abajo izquierda":
+        return question("Perdone, no le he entendido")
     # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
     queue.put(direccion)
     return question('El personaje se mueve hacia ' + direccion)
