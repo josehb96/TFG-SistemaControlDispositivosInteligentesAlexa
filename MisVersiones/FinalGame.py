@@ -579,7 +579,8 @@ def game_thread(queue):
             colision_disparos_virus = pygame.sprite.groupcollide(spritesVirus, spritesBalas, True, True, pygame.sprite.collide_circle)
 
             if colision_disparos_virus:
-                puntuacion += 25
+                impactoDisparo.play()
+                puntuacion += 50
 
             colision_jugador_virus = pygame.sprite.spritecollide(jugador, spritesVirus, pygame.sprite.collide_circle)
 
