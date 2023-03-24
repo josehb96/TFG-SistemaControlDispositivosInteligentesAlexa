@@ -45,6 +45,7 @@ def game_thread(queue):
     sonidoDisparo = pygame.mixer.Sound("../Sonidos/Disparo.wav")
     impactoDisparo = pygame.mixer.Sound("../Sonidos/ImpactoDisparo.wav")
     sonidoHerido = pygame.mixer.Sound("../Sonidos/Herido.wav")
+    sonidoCuracion = pygame.mixer.Sound("../Sonidos/Curacion.wav")
     #ambiente = pygame.mixer.Sound("../Sonidos/ambiente.wav") # Por ejemplo
 
     '''# Si queremos poner sonidos aleatorios un ejemplo podría ser este:
@@ -377,6 +378,39 @@ def game_thread(queue):
                 # ANCHO
                 self.velocidad_y = random.randrange(1, 2) # Y además que vuelva a tomar una velocidad aleatoria diferente
 
+    class Botiquin(pygame.sprite.Sprite):
+        def __init__(self):
+            super().__init__()
+
+            '''self.img_aleatoria = random.randrange(3)
+
+            if self.img_aleatoria == 0:
+                self.image = pygame.transform.scale(pygame.image.load("../Imagenes/Botiquin.png").convert(), (100,100))
+                self.radius = 50
+            elif self.img_aleatoria == 1:
+                self.image = pygame.transform.scale(pygame.image.load("../Imagenes/Botiquin.png").convert(), (50,50))
+                self.radius = 25
+            elif self.img_aleatoria == 2:
+                self.image = pygame.transform.scale(pygame.image.load("../Imagenes/Botiquin.png").convert(), (25,25))
+                self.radius = 12'''
+
+            self.image = pygame.transform.scale(pygame.image.load("../Imagenes/Botiquin.png").convert(), (32,32))
+            self.radius = 16
+
+            #self.image.set_colorkey(ROJO)
+            self.rect = self.image.get_rect()
+            self.rect.x = random.randrange(ANCHO - self.rect.width) # Posición inicial en la coordenada "x" que van a tomar los botiquines instanciados evitando que se generen a medio trozo de la pantalla
+            self.rect.y = -self.rect.width # Posicion inicial en la coordenada "y". Evitamos que se genere por dentro de la pantalla
+            self.velocidad_y = random.randrange(1, 2)
+        
+        def update(self):
+            self.rect.y += self.velocidad_y # Para que vaya el botiquin hacia abajo
+            if self.rect.top > ALTO: # Si el botiquin desaparece de la pantalla por debajo, entonces que vuelva a tomar los valores iniciales
+                self.rect.x = random.randrange(ANCHO - self.rect.width)
+                self.rect.y = -self.rect.width
+                # ANCHO
+                self.velocidad_y = random.randrange(1, 2) # Y además que vuelva a tomar una velocidad aleatoria diferente
+
     def barra_hp(pantalla, x, y, hp):
         largo = 200
         ancho = 25
@@ -416,6 +450,7 @@ def game_thread(queue):
         spritesEnemigosNivel3 = pygame.sprite.Group() # Como vamos a utilizar las colisiones necesitamos tener un grupo dedicado a los enemigos
         spritesBalas = pygame.sprite.Group()
         spritesVirus = pygame.sprite.Group() 
+        spritesBotiquines = pygame.sprite.Group()
 
         #max_enemies = 5 # Establecemos el máximo de enemigos
 
@@ -557,12 +592,19 @@ def game_thread(queue):
             spritesEnemigosNivel3.update()
             spritesBalas.update()
             spritesVirus.update()
+            spritesBotiquines.update()
 
             # Instanciación de los virus
             if not spritesVirus:
                 for x in range(2):
                     virus = Virus()
                     spritesVirus.add(virus)
+
+            # Instanciación de los virus
+            if not spritesBotiquines:
+                #for x in range(2):
+                botiquin = Botiquin()
+                spritesBotiquines.add(botiquin)
 
             # ESTO ES PARA HACER PRUEBAS PARA QUE EL JUEGO NO SE QUEDE VACÍO AL ACABAR CON TODOS LOS ENEMIGOS
             if not spritesEnemigosNivel1 and not spritesEnemigosNivel2 and not spritesEnemigosNivel3:
@@ -586,11 +628,19 @@ def game_thread(queue):
 
             if colision_jugador_virus:
                 sonidoHerido.play()
-                jugador.hp -= 15
+                jugador.hp -= 50
                 if puntuacion >= 0:
-                    puntuacion -= 10
+                    puntuacion -= 100
                     if puntuacion < 0:
                         puntuacion = 0
+
+            colision_jugador_botiquines = pygame.sprite.spritecollide(jugador, spritesBotiquines, pygame.sprite.collide_circle)
+
+            if colision_jugador_botiquines:
+                sonidoCuracion.play()
+                jugador.hp += 10
+                if jugador.hp > 100:
+                    jugador.hp = 100
 
             # Indicamos que el sprite de los enemigos va a ser el que provoque la colisión sobre el grupo de sprites colisionados (spritesEnemigos) y que no queremos que por defecto haya kill a los enemigos (False)
             #colision_personaje = pygame.sprite.spritecollide(jugador, spritesVirus, False, pygame.sprite.collide_circle) # spritecollide nos permite utilizar un sprite contra un grupo y ahí generamos una colisión, además aquí le indicamos que trabaje con colisiones circulares
@@ -687,6 +737,7 @@ def game_thread(queue):
             spritesEnemigosNivel3.draw(pantalla)
             spritesBalas.draw(pantalla)
             spritesVirus.draw(pantalla)
+            spritesBotiquines.draw(pantalla)
             #pygame.draw.line(pantalla, H_50D2FE, (400, 0), (400, 800), 1)
             #pygame.draw.line(pantalla, AZUL, (0, 300), (800, 300), 1)
 
