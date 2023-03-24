@@ -46,7 +46,7 @@ def game_thread(queue):
     impactoDisparo = pygame.mixer.Sound("../Sonidos/ImpactoDisparo.wav")
     sonidoHerido = pygame.mixer.Sound("../Sonidos/Herido.wav")
     sonidoCuracion = pygame.mixer.Sound("../Sonidos/Curacion.wav")
-    #ambiente = pygame.mixer.Sound("../Sonidos/ambiente.wav") # Por ejemplo
+    ambiente = pygame.mixer.Sound("../Sonidos/Ambiente.flac") # Por ejemplo
 
     '''# Si queremos poner sonidos aleatorios un ejemplo podría ser este:
     impactos_random = [pygame.mixer.Sound("../Sonidos/ImpactoDisparo1.wav"),
@@ -55,7 +55,7 @@ def game_thread(queue):
                         pygame.mixer.Sound("../Sonidos/ImpactoDisparo4.wav")]'''
 
     # Para activar la música de ambiente es tán sencillo como descargar un sonido adecuado
-    #ambiente.play()
+    ambiente.play()
 
     class Jugador(pygame.sprite.Sprite):
 
