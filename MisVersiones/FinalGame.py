@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_ask import Ask, statement, question
 import pygame, sys # También utilizamos el módulo sys
 from queue import Queue
@@ -863,6 +863,14 @@ def realiza_disparo(direccion):
 def endgame():
     queue.put('Endgame')
     return statement('Fin del juego.')
+
+'''En particular, la decoración "@ask.session_ended" indica que la función "session_ended" se activará cuando se produzca 
+un evento de finalización de sesión. Este evento puede ocurrir cuando el usuario cierra la aplicación de voz o 
+cuando el tiempo de espera de inactividad ha expirado.'''
+@ask.session_ended
+def session_ended():
+    queue.put('Endgame')
+    return "{}", 200
 
 # Definimos la ruta para la página principal de la aplicación web
 @app.route('/')
