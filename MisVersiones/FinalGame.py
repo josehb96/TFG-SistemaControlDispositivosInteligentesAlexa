@@ -169,39 +169,39 @@ def game_thread(queue):
 
             # Mueve el personaje hacia la izquierda
             if movimiento == 'izquierda':
-                self.velocidad_x = -50 # Cada vez que se pulse la tecla se moverá 10px a la izquierda
+                self.velocidad_x = -100 # Cada vez que se pulse la tecla se moverá 10px a la izquierda
             
             # Mueve el personaje hacia la derecha
             elif movimiento == 'derecha':
-                self.velocidad_x = 50
+                self.velocidad_x = 100
 
             # Mueve el personaje hacia arriba
             elif movimiento == 'arriba':
-                self.velocidad_y = -50 # Cada vez que se pulse la tecla se moverá 10px hacia arriba
+                self.velocidad_y = -100 # Cada vez que se pulse la tecla se moverá 10px hacia arriba
             
             # Mueve el personaje hacia abajo
             elif movimiento == 'abajo':
-                self.velocidad_y = 50
+                self.velocidad_y = 100
 
             # Mueve el personaje hacia arriba a la izquierda
             elif movimiento == 'arriba izquierda':
-                self.velocidad_x = -50
-                self.velocidad_y = -50 
+                self.velocidad_x = -100
+                self.velocidad_y = -100 
             
             # Mueve el personaje hacia arriba a la derecha
             elif movimiento == 'arriba derecha':
-                self.velocidad_x = 50
-                self.velocidad_y = -50
+                self.velocidad_x = 100
+                self.velocidad_y = -100
 
             # Mueve el personaje hacia abajo a la izquierda
             elif movimiento == 'abajo izquierda':
-                self.velocidad_y = 50
-                self.velocidad_x = -50
+                self.velocidad_y = 100
+                self.velocidad_x = -100
             
             # Mueve el personaje hacia abaja a la derecha
             elif movimiento == 'abajo derecha':
-                self.velocidad_y = 50
-                self.velocidad_x = 50
+                self.velocidad_y = 100
+                self.velocidad_x = 100
 
             # Actualiza la posición del personaje
             self.rect.x += self.velocidad_x
@@ -696,7 +696,7 @@ def game_thread(queue):
             colision_disparos_enemigosNivel1 = pygame.sprite.groupcollide(spritesEnemigosNivel1, spritesBalas, False, True, pygame.sprite.collide_circle) 
             
             if colision_disparos_enemigosNivel1:
-                puntuacion += 10
+                puntuacion += 100
                 impactoDisparo.play()
                 #impactos_random[random.randrange(0,3)].play() # Si queremos que el sonido sea aleatorio
                 enemigoNivel1.hp -= 15
@@ -707,7 +707,7 @@ def game_thread(queue):
             colision_disparos_enemigosNivel2 = pygame.sprite.groupcollide(spritesEnemigosNivel2, spritesBalas, False, True, pygame.sprite.collide_circle)
 
             if colision_disparos_enemigosNivel2:
-                puntuacion += 20
+                puntuacion += 200
                 impactoDisparo.play()
                 #impactos_random[random.randrange(0,3)].play() # Si queremos que el sonido sea aleatorio
                 enemigoNivel2.hp -= 15
@@ -718,7 +718,7 @@ def game_thread(queue):
             colision_disparos_enemigosNivel3 = pygame.sprite.groupcollide(spritesEnemigosNivel3, spritesBalas, False, True, pygame.sprite.collide_circle)
             
             if colision_disparos_enemigosNivel3:
-                puntuacion += 30
+                puntuacion += 300
                 impactoDisparo.play()
                 #impactos_random[random.randrange(0,3)].play() # Si queremos que el sonido sea aleatorio
                 enemigoNivel3.hp -= 15
@@ -824,7 +824,7 @@ def game_thread(queue):
 
 
             # Dibuja los textos en la pantalla
-            muestra_texto(pantalla, consolas, str(puntuacion).zfill(5), ROJO, 40, 680, 60) # Mostramos la puntuación en la pantalla
+            muestra_texto(pantalla, consolas, str(puntuacion).zfill(4), ROJO, 40, 680, 60) # Mostramos la puntuación en la pantalla
 
             # Mostramos la barra del jugador actualizada
             barra_hp(pantalla, 580, 15, jugador.hp)
@@ -875,7 +875,7 @@ def session_ended():
 # Definimos la ruta para la página principal de la aplicación web
 @app.route('/')
 def index():
-    return 'Esta es la homepage del videojuego Movimiento.'
+    return 'Esta es la homepage del videojuego Voz Letal.'
 
 if __name__ == '__main__':
 
