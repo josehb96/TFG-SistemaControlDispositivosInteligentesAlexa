@@ -801,7 +801,7 @@ def game_thread(queue):
                     screen = pygame.display.get_surface()
                     screen.blit(textoGameOver, (x,y)) # Vamos a centrar el texto en la ventana de Pygame
 
-                    font2 = pygame.font.SysFont(None, 40)
+                    '''font2 = pygame.font.SysFont(None, 40)
                     textoInformativo = font2.render('Di "fin del juego" para finalizar', True, ROJO)
 
                     # Obtener las dimensiones del texto
@@ -811,7 +811,7 @@ def game_thread(queue):
                     #x = (ANCHO - text_width) // 2
                     #y = (ALTO - text_height) // 2
 
-                    screen.blit(textoInformativo, (x,y+75))
+                    screen.blit(textoInformativo, (x,y+75))'''
 
                     pygame.display.update()
 
@@ -822,6 +822,36 @@ def game_thread(queue):
                         #time.sleep(10)
                         ejecutando = False # Indicamos que el bucle de juego va a terminar
 
+            # Si se alcanza una puntuación de 1000 se gana la partida
+            if puntuacion >= 1000:
+                
+                peticion_endgame = False
+                while peticion_endgame == False:
+
+                    font = pygame.font.SysFont(None, 100)
+                    textoWin = font.render('HAS GANADO', True, VERDE) # True (antialias) es para que la superficie del texto se suavice y obtener bordes más suaves
+
+                    # Obtener las dimensiones del texto
+                    text_width, text_height = font.size("HAS GANADO")
+
+                    # Calcular la posición para centrar el texto
+                    x = (ANCHO - text_width) // 2
+                    y = (ALTO - text_height) // 2
+
+                    screen = pygame.display.get_surface()
+                    screen.blit(textoWin, (x,y)) # Vamos a centrar el texto en la ventana de Pygame
+
+                    '''font2 = pygame.font.SysFont(None, 40)
+                    textoInformativo = font2.render('Di "fin del juego" para finalizar', True, VERDE)
+
+                    screen.blit(textoInformativo, (x+15,y+75))'''
+
+                    pygame.display.update()
+
+                    mensaje = queue.get() # Bloqueamos el hilo de ejecución a la espera de la solicitud de fin del juego
+                    if mensaje == 'Endgame':
+                        peticion_endgame = True
+                        ejecutando = False # Indicamos que el bucle de juego va a terminar
 
             # Dibuja los textos en la pantalla
             muestra_texto(pantalla, consolas, str(puntuacion).zfill(4), ROJO, 40, 680, 60) # Mostramos la puntuación en la pantalla
@@ -843,7 +873,7 @@ def start_skill():
     pygame_thread.start()
     # Indicamos a pygame que inicie el videojuego
     queue.put('Init')
-    return question('Bienvenido al videojuego Voz Letal. Dime en qué dirección quieres moverte o hacia donde deseas disparar.')
+    return question('Bienvenido a Voz Letal. Dime en qué dirección quieres moverte o si deseas disparar.')
 
 @ask.intent('MovementIntent')
 def realiza_movimiento(direccion):
@@ -851,13 +881,18 @@ def realiza_movimiento(direccion):
         return question("Perdone, no le he entendido")
     # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
     queue.put(direccion)
-    return question('El personaje se mueve hacia ' + direccion)
+    return question('Te mueves hacia ' + direccion)
 
 @ask.intent('ShootIntent', default={'direccion':'direccion actual'})
 def realiza_disparo(direccion):
     # Indicamos al videojuego que dispare
     queue.put("dispara " + direccion)
-    return question('El personaje ha disparado a la ' + direccion)
+    return question('Disparas a la ' + direccion)
+
+@ask.intent('AMAZON.StopIntent')
+def paraEjecucion():
+    queue.put('Endgame')
+    return statement('Fin del juego.')
 
 @ask.intent('EndgameIntent')
 def endgame():
