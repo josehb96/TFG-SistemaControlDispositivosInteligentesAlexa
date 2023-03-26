@@ -873,7 +873,8 @@ def start_skill():
     pygame_thread.start()
     # Indicamos a pygame que inicie el videojuego
     queue.put('Init')
-    return question('Bienvenido a Voz Letal. Dime en qué dirección quieres moverte o si deseas disparar.')
+    return question('Bienvenido a Voz Letal. Dime si deseas moverte o disparar.') \
+        .reprompt("Por favor, dígame a donde quiere moverse o disparar.")
 
 @ask.intent('MovementIntent')
 def realiza_movimiento(direccion):
