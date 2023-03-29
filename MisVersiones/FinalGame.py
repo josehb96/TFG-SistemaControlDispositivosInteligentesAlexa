@@ -876,9 +876,11 @@ def start_skill():
     return question('Bienvenido a Voz Letal. Dime si deseas moverte o disparar.') \
         .reprompt("Por favor, dígame a donde quiere moverse o disparar.")
 
+lista_direcciones = ["arriba", "abajo", "izquierda", "derecha", "arriba izquierda", "arriba derecha", "abajo derecha", "abajo izquierda"]
+
 @ask.intent('MovementIntent')
 def realiza_movimiento(direccion):
-    if direccion != "arriba" and direccion != "abajo" and direccion != "izquierda" and direccion != "derecha" and direccion != "arriba izquierda" and direccion != "arriba derecha" and direccion != "abajo derecha" and direccion != "abajo izquierda":
+    if direccion not in lista_direcciones:
         return question("Perdone, no le he entendido")
     # Indicamos al videojuego en qué dirección queremos que se mueva el personaje
     queue.put(direccion)
@@ -886,6 +888,8 @@ def realiza_movimiento(direccion):
 
 @ask.intent('ShootIntent', default={'direccion':'direccion actual'})
 def realiza_disparo(direccion):
+    if direccion != "derecha" and direccion != "izquierda" and direccion != "direccion actual":
+        return question("Lo siento, sólo se puede disparar a derecha o izquierda")
     # Indicamos al videojuego que dispare
     queue.put("dispara " + direccion)
     return question('Disparas a la ' + direccion)
