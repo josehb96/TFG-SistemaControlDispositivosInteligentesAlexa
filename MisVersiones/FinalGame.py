@@ -915,7 +915,7 @@ def index():
 
 if __name__ == '__main__':
 
-    app.run(debug=False) # Si desactivamos el modo debug evitamos que nos abra 2 ventanas de pygame
+    app.run(host='0.0.0.0', debug=False) # Si desactivamos el modo debug evitamos que nos abra 2 ventanas de pygame
     # Cuando la aplicación web se detiene, enviamos un mensaje None a la cola
     queue.put(None)
     # Esperamos a que el hilo de Pygame termine
