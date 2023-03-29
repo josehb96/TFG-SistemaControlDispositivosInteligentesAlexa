@@ -46,7 +46,7 @@ def game_thread(queue):
     impactoDisparo = pygame.mixer.Sound("../Sonidos/ImpactoDisparo.wav")
     sonidoHerido = pygame.mixer.Sound("../Sonidos/Herido.wav")
     sonidoCuracion = pygame.mixer.Sound("../Sonidos/Curacion.wav")
-    ambiente = pygame.mixer.Sound("../Sonidos/Ambiente.flac") # Por ejemplo
+    ambiente = pygame.mixer.Sound("../Sonidos/Ambiente.mp3") # Por ejemplo
 
     '''# Si queremos poner sonidos aleatorios un ejemplo podría ser este:
     impactos_random = [pygame.mixer.Sound("../Sonidos/ImpactoDisparo1.wav"),
