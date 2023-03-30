@@ -1,12 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask
 from flask_ask import Ask, statement, question
-import pygame, sys # También utilizamos el módulo sys
+import pygame
 from queue import Queue
 from threading import Thread
-import time
+import time 
 import random # Para hacer cosas aleatorias
-import requests
-import json
 
 app = Flask(__name__)
 ask = Ask(app, '/')
@@ -30,9 +28,11 @@ def game_thread(queue):
     ROJO = (255,0,0)
     H_FA2F2F = (250,47,47)
     VERDE = (0,255,0)
+    VERDE2 = (162,255,177)
     AZUL = (0,0,255)
     H_50D2FE = (94,210,254)
     AZUL2 = (64,64,255)
+
 
     # Fuentes
     consolas = pygame.font.match_font('consolas')
@@ -417,8 +417,8 @@ def game_thread(queue):
         calculo_barra = int((jugador.hp / 100) * largo) # Calculamos el porcentaje vida respecto a la longitud de la barra
         borde = pygame.Rect(x, y, largo, ancho) # Creamos un borde para la barra de vida
         rectangulo = pygame.Rect(x, y, calculo_barra, ancho) # Creamos el rectángulo de la barra de vida
-        pygame.draw.rect(pantalla, AZUL2, borde, 3)
-        pygame.draw.rect(pantalla, H_50D2FE, rectangulo)
+        pygame.draw.rect(pantalla, VERDE2, borde, 3)
+        pygame.draw.rect(pantalla, VERDE, rectangulo)
 
 
     def muestra_texto(pantalla, fuente, texto, color, dimensiones, x, y): 
