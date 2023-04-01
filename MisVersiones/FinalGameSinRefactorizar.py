@@ -4,7 +4,7 @@ import pygame
 from queue import Queue
 from threading import Thread
 import time 
-import random
+import random # Para hacer cosas aleatorias
 
 app = Flask(__name__)
 ask = Ask(app, '/')
@@ -33,6 +33,7 @@ def game_thread(queue):
     H_50D2FE = (94,210,254)
     AZUL2 = (64,64,255)
 
+
     # Fuentes
     consolas = pygame.font.match_font('consolas')
     times = pygame.font.match_font('times')
@@ -45,7 +46,16 @@ def game_thread(queue):
     impactoDisparo = pygame.mixer.Sound("../Sonidos/ImpactoDisparo.wav")
     sonidoHerido = pygame.mixer.Sound("../Sonidos/Herido.wav")
     sonidoCuracion = pygame.mixer.Sound("../Sonidos/Curacion.wav")
-    ambiente = pygame.mixer.Sound("../Sonidos/Ambiente.mp3")
+    ambiente = pygame.mixer.Sound("../Sonidos/Ambiente.mp3") # Por ejemplo
+
+    '''# Si queremos poner sonidos aleatorios un ejemplo podría ser este:
+    impactos_random = [pygame.mixer.Sound("../Sonidos/ImpactoDisparo1.wav"),
+                        pygame.mixer.Sound("../Sonidos/ImpactoDisparo2.wav"),
+                        pygame.mixer.Sound("../Sonidos/ImpactoDisparo3.wav"),
+                        pygame.mixer.Sound("../Sonidos/ImpactoDisparo4.wav")]'''
+
+    # Para activar la música de ambiente es tán sencillo como descargar un sonido adecuado
+    ambiente.play()
 
     class Jugador(pygame.sprite.Sprite):
 
@@ -421,8 +431,6 @@ def game_thread(queue):
     mensaje = queue.get() # Esperamos hasta que se inicie la skill
 
     if mensaje == 'Init':
-
-        ambiente.play() # Reproducimos la pista de sonido con el sonido ambiente para el videojuego
 
         # UNA IDEA MUY INTERESANTE ES CREAR SPRITES DE BOTIQUINES PARA QUE EL PERSONAJE PUEDA RECUPERAR SALUD O VOLVER A SER HUMANO POR EJEMPLO
 
