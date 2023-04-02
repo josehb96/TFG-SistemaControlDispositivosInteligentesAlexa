@@ -4,7 +4,7 @@ import pygame
 from queue import Queue
 from threading import Thread
 import time 
-import random
+import random # Para hacer cosas aleatorias
 
 app = Flask(__name__)
 ask = Ask(app, '/')
@@ -53,7 +53,6 @@ def game_thread(queue):
                         pygame.mixer.Sound("../Sonidos/ImpactoDisparo2.wav"),
                         pygame.mixer.Sound("../Sonidos/ImpactoDisparo3.wav"),
                         pygame.mixer.Sound("../Sonidos/ImpactoDisparo4.wav")]'''
-
 
     # Para activar la música de ambiente es tán sencillo como descargar un sonido adecuado
     ambiente.play()
@@ -118,18 +117,10 @@ def game_thread(queue):
 
             # Mueve el personaje hacia la izquierda
             if teclas[pygame.K_a]:
-                # Modificamos la orientación del personaje
-                self.image = pygame.image.load("../Imagenes/PersonajeGirado.png").convert()
-                self.image.set_colorkey(VERDE)
-                self.direccionApuntado = "izquierda"
                 self.velocidad_x = -10 # Cada vez que se pulse la tecla se moverá 10px a la izquierda
             
             # Mueve el personaje hacia la derecha
             if teclas[pygame.K_d]:
-                # Modificamos la orientación del personaje
-                self.image = pygame.image.load("../Imagenes/Personaje.png").convert()
-                self.image.set_colorkey(VERDE)
-                self.direccionApuntado = "derecha"
                 self.velocidad_x = 10
 
             # Mueve el personaje hacia arriba
@@ -144,14 +135,9 @@ def game_thread(queue):
             if teclas[pygame.K_SPACE]:
                 ahora = pygame.time.get_ticks() # Obtenemos el tiempo actual del disparo
                 if ahora - self.ultimo_disparo > self.cadencia: # Si han pasado más de 750ms entre el disparo actual y el último
-                    jugador.disparo("izquierda")
+                    jugador.disparo("derecha")
                     #jugador.disparo2() Por si queremos tener más cañones de disparo
                     #jugador.disparo3()
-                    self.ultimo_disparo = ahora # Registramos el momento/instante del disparo actual
-            if teclas[pygame.K_RETURN]:
-                ahora = pygame.time.get_ticks() # Obtenemos el tiempo actual del disparo
-                if ahora - self.ultimo_disparo > self.cadencia: # Si han pasado más de 750ms entre el disparo actual y el último
-                    jugador.disparo("derecha")
                     self.ultimo_disparo = ahora # Registramos el momento/instante del disparo actual
 
             # Actualiza la posición del personaje
@@ -183,18 +169,10 @@ def game_thread(queue):
 
             # Mueve el personaje hacia la izquierda
             if movimiento == 'izquierda':
-                # Modificamos la orientación del personaje
-                self.image = pygame.image.load("../Imagenes/PersonajeGirado.png").convert()
-                self.image.set_colorkey(VERDE)
-                self.direccionApuntado = "izquierda"
                 self.velocidad_x = -100 # Cada vez que se pulse la tecla se moverá 10px a la izquierda
             
             # Mueve el personaje hacia la derecha
             elif movimiento == 'derecha':
-                # Modificamos la orientación del personaje
-                self.image = pygame.image.load("../Imagenes/Personaje.png").convert()
-                self.image.set_colorkey(VERDE)
-                self.direccionApuntado = "derecha"
                 self.velocidad_x = 100
 
             # Mueve el personaje hacia arriba
@@ -208,18 +186,10 @@ def game_thread(queue):
             # Mueve el personaje hacia arriba a la izquierda
             elif movimiento == 'arriba izquierda':
                 self.velocidad_x = -100
-                self.velocidad_y = -100
-                # Modificamos la orientación del personaje
-                self.image = pygame.image.load("../Imagenes/PersonajeGirado.png").convert()
-                self.image.set_colorkey(VERDE)
-                self.direccionApuntado = "izquierda" 
+                self.velocidad_y = -100 
             
             # Mueve el personaje hacia arriba a la derecha
             elif movimiento == 'arriba derecha':
-                # Modificamos la orientación del personaje
-                self.image = pygame.image.load("../Imagenes/Personaje.png").convert()
-                self.image.set_colorkey(VERDE)
-                self.direccionApuntado = "derecha"
                 self.velocidad_x = 100
                 self.velocidad_y = -100
 
@@ -227,17 +197,9 @@ def game_thread(queue):
             elif movimiento == 'abajo izquierda':
                 self.velocidad_y = 100
                 self.velocidad_x = -100
-                # Modificamos la orientación del personaje
-                self.image = pygame.image.load("../Imagenes/PersonajeGirado.png").convert()
-                self.image.set_colorkey(VERDE)
-                self.direccionApuntado = "izquierda"
             
             # Mueve el personaje hacia abaja a la derecha
             elif movimiento == 'abajo derecha':
-                # Modificamos la orientación del personaje
-                self.image = pygame.image.load("../Imagenes/Personaje.png").convert()
-                self.image.set_colorkey(VERDE)
-                self.direccionApuntado = "derecha"
                 self.velocidad_y = 100
                 self.velocidad_x = 100
 
@@ -267,27 +229,17 @@ def game_thread(queue):
             spritesBalas.add(bala)
             sonidoDisparo.play() # Para activar el sonido al disparar'''
 
-
         def disparo(self, direccion):
             if direccion == "derecha":
-                if self.direccionApuntado == "izquierda": 
-                    # Modificamos la orientación del personaje
-                    self.image = pygame.image.load("../Imagenes/Personaje.png").convert()
-                    self.image.set_colorkey(VERDE)
+                #bala = Disparo(self.rect.centerx, self.rect.top + 20) # Hacemos que la bala se instancie en el centro del rectángulo del jugador y además arriba del rectángulo del jugador
                 bala = Disparo(self.rect.right -20 , self.rect.centery + 7, direccion)
                 spritesBalas.add(bala)
                 sonidoDisparo.play() # Para activar el sonido al disparar
-                self.direccionApuntado = "derecha"
             elif direccion == "izquierda":
-                if self.direccionApuntado == "derecha":
-                    # Modificamos la orientación del personaje
-                    self.image = pygame.image.load("../Imagenes/PersonajeGirado.png").convert()
-                    self.image.set_colorkey(VERDE)
                 bala = Disparo(self.rect.left +20 , self.rect.centery + 7, direccion)
                 spritesBalas.add(bala)
                 sonidoDisparo.play() # Para activar el sonido al disparar
-                self.direccionApuntado = "izquierda"
-
+            
         """# Podemos aumentar el número de "cañones de disparo"
         def disparo2(self):
             bala = Disparo(self.rect.centerx + 23, self.rect.top + 30) # Hacemos que la bala se instancie en el centro del rectángulo del jugador y además arriba del rectángulo del jugador
