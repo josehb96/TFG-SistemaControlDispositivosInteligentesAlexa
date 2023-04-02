@@ -57,24 +57,16 @@ def game_thread(queue):
 
             # Rectángulo (jugador), recordemos que las imágenes en Pygame son rectángulos
             self.image = pygame.image.load("../Imagenes/Personaje.png").convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
-            #self.image.fill(H_FA2F2F) # No indicamos ningún color al sprite porque queremos que se muestre la imagen
 
             self.image.set_colorkey(VERDE) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
 
             # Obtiene el rectángulo (sprite) de la imagen del jugador para poder manipularlo
             self.rect = self.image.get_rect()
 
-            # SI QUEREMOS EL RECTÁNGULO ESTÁNDAR DEL SPRITE PARA VER CÓMO FUNCIONAN LAS COLISIONES:
-            #self.image = pygame.Surface((97,117)) # Dibujamos sobre el sprite del jugador un rectángulo del tamaño en px de la imagen del jugador
-            #self.image.fill(AZUL2)
-
             # Vamos a utilizar la técnica matemática CIRCULAR BOUNDING BOX para mejorar las colisiones
             self.radius = 35 # Establecemos el radio
-            #pygame.draw.circle(self.image, AZUL2, self.rect.center, self.radius) # Para hacer pruebas
 
             self.rect.center = (400,600) # Podemos colocar el rectángulo en la posición inicial que queramos
-            # Centra el rectángulo (sprite)
-            #self.rect.center = (ANCHO // 2, ALTO // 2) # Este operador devuelve el resultado (integer) de dividir, redondeando si sale float
 
             # Velocidad del personaje (inicial)
             self.velocidad_x = 0 # Inicialmente el objeto va a estar quieto
@@ -95,65 +87,9 @@ def game_thread(queue):
             # A qué dirección está apuntando actualmente el jugador
             self.direccionApuntado = "derecha" # Inicialmente siempre apunta a la derecha
 
-        def update(self):
+        def ejecutaAccion(self, movimiento):
 
             # Velocidad predeterminada cada vuelta del bucle si no pulsas nada
-            # ESTO PARA TRABAJAR POR VOZ SEGURAMENTE NO NOS INTERESA
-            self.velocidad_x = 0 # Con esto se evita que el personaje se mueva de manera indefinida si no estamos pulsando nada
-            self.velocidad_y = 0
-
-            # Mantiene las teclas pulsadas
-            teclas = pygame.key.get_pressed()
-
-            # Mueve el personaje hacia la izquierda
-            if teclas[pygame.K_a]:
-                self.velocidad_x = -10 # Cada vez que se pulse la tecla se moverá 10px a la izquierda
-            
-            # Mueve el personaje hacia la derecha
-            if teclas[pygame.K_d]:
-                self.velocidad_x = 10
-
-            # Mueve el personaje hacia arriba
-            if teclas[pygame.K_w]:
-                self.velocidad_y = -10 # Cada vez que se pulse la tecla se moverá 10px hacia arriba
-            
-            # Mueve el personaje hacia abajo
-            if teclas[pygame.K_s]:
-                self.velocidad_y = 10
-
-            # El personaje dispara
-            if teclas[pygame.K_SPACE]:
-                ahora = pygame.time.get_ticks() # Obtenemos el tiempo actual del disparo
-                if ahora - self.ultimo_disparo > self.cadencia: # Si han pasado más de 750ms entre el disparo actual y el último
-                    jugador.disparo("derecha")
-                    #jugador.disparo2() Por si queremos tener más cañones de disparo
-                    #jugador.disparo3()
-                    self.ultimo_disparo = ahora # Registramos el momento/instante del disparo actual
-
-            # Actualiza la posición del personaje
-            self.rect.x += self.velocidad_x
-            self.rect.y += self.velocidad_y
-
-            # Limita el margen izquierdo
-            if self.rect.left < 0: # Cada vez que toque el borde izquierdo e intente salir de la pantalla 
-                self.rect.left = 0 # Se ajusta el personaje al borde izquierdo
-
-            # Limita el margen derecho
-            if self.rect.right > ANCHO:
-                self.rect.right = ANCHO
-
-            # Limita el margen inferior
-            if self.rect.bottom > ALTO:
-                self.rect.bottom = ALTO
-
-            # Limita el margen superior
-            if self.rect.top < 0:
-                self.rect.top = 0
-
-        def ejecutaMovimiento(self, movimiento):
-
-            # Velocidad predeterminada cada vuelta del bucle si no pulsas nada
-            # ESTO PARA TRABAJAR POR VOZ SEGURAMENTE NO NOS INTERESA
             self.velocidad_x = 0 # Con esto se evita que el personaje se mueva de manera indefinida si no estamos pulsando nada
             self.velocidad_y = 0
 
@@ -213,12 +149,6 @@ def game_thread(queue):
             if self.rect.top < 0:
                 self.rect.top = 0
 
-        '''def disparo(self):
-            #bala = Disparo(self.rect.centerx, self.rect.top + 20) # Hacemos que la bala se instancie en el centro del rectángulo del jugador y además arriba del rectángulo del jugador
-            bala = Disparo(self.rect.right -20 , self.rect.centery + 7, "derecha")
-            spritesBalas.add(bala)
-            sonidoDisparo.play() # Para activar el sonido al disparar'''
-
         def disparo(self, direccion):
             if direccion == "derecha":
                 #bala = Disparo(self.rect.centerx, self.rect.top + 20) # Hacemos que la bala se instancie en el centro del rectángulo del jugador y además arriba del rectángulo del jugador
@@ -229,15 +159,6 @@ def game_thread(queue):
                 bala = Disparo(self.rect.left +20 , self.rect.centery + 7, direccion)
                 spritesBalas.add(bala)
                 sonidoDisparo.play() # Para activar el sonido al disparar
-            
-        """# Podemos aumentar el número de "cañones de disparo"
-        def disparo2(self):
-            bala = Disparo(self.rect.centerx + 23, self.rect.top + 30) # Hacemos que la bala se instancie en el centro del rectángulo del jugador y además arriba del rectángulo del jugador
-            spritesBalas.add(bala)
-
-        def disparo3(self):
-            bala = Disparo(self.rect.centerx -23, self.rect.top + 30) # Hacemos que la bala se instancie en el centro del rectángulo del jugador y además arriba del rectángulo del jugador
-            spritesBalas.add(bala)"""
 
     class Enemigo(pygame.sprite.Sprite):
 
@@ -248,30 +169,21 @@ def game_thread(queue):
             super().__init__()
 
             # Rectángulo (enemigo), recordemos que las imágenes en Pygame son rectángulos
-            #self.image = pygame.image.load(rutaImagen).convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
             self.image = pygame.transform.scale(pygame.image.load(rutaImagen).convert(), (79, 117)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
 
             self.image.set_colorkey(colorFondo) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
-
-            # SI QUEREMOS EL RECTÁNGULO ESTÁNDAR DEL SPRITE PARA VER CÓMO FUNCIONAN LAS COLISIONES:
-            #self.image = pygame.Surface((79,117))
-            #self.image.fill(ROJO)
 
             # Obtiene el rectángulo (sprite) de la imagen del jugador para poder manipularlo
             self.rect = self.image.get_rect()
 
             # Vamos a utilizar la técnica matemática CIRCULAR BOUNDING BOX para mejorar las colisiones
             self.radius = radio # Establecemos el radio
-            #pygame.draw.circle(self.image, ROJO, self.rect.center, self.radius) # Para hacer pruebas
 
             # Hacemos que el enemigo pueda aparecer en cualquier lugar de la pantalla de forma aleatoria
             self.rect.x = random.randrange(ANCHO - self.rect.width) # Con esto vamos a poner como coordenada X del sprite un número aleatorio entre todos los píxeles del ancho de la pantalla y además controlamos que no se coloque fuera de los márgenes de la pantalla ya que tendrá en cuenta el ancho del propio rectángulo
             self.rect.y = random.randrange(ALTO - self.rect.height) # Con esto hacemos lo mismo pero para la coordenada Y
 
-            # Velocidad inicial del enemigo para que se mueva sin que tenga que ocurrir nada antes
-            #self.velocidad_x = 5
-            #self.velocidad_y = 5
-            # Si en lugar de que se muevan con una velocidad establecida lo hagan con una velocidad alaatoria
+            # Si en lugar de que se muevan con una velocidad establecida lo hacen con una velocidad aleatoria
             self.velocidad_x = random.randrange(1, velocidad_maxima) # Con esto la velocidad será entre 1 y velocidad_maxima
             self.velocidad_y = random.randrange(1, velocidad_maxima)
 
@@ -299,21 +211,6 @@ def game_thread(queue):
             # Limita el margen superior
             if self.rect.top < 0:
                 self.velocidad_y += 1
-
-    '''class Disparo(pygame.sprite.Sprite):
-        def __init__(self, x, y): # Los parámetros x e y son para indicar la posición exacta de la zona donde se van a generar los disparos
-            super().__init__()
-            self.image = pygame.transform.scale(pygame.image.load("../Imagenes/bala.png").convert(), (20, 20)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
-            self.image.set_colorkey(VERDE)
-            self.rect = self.image.get_rect() # Obtenemos el rectángulo de la imagen
-            self.rect.bottom = y # La posición y va a ser la parte baja del rectángulo de la bala
-            self.rect.centerx = x # Centramos a la posición de en medio del rectángulo del jugador
-        
-        def update(self):
-            self.rect.x += 25
-            #self.rect.y -= 25 # Con esto conseguimos que las balas vayan hacia arriba
-            if self.rect.bottom < 0: # Cuando la bala salga por la parte superior de la pantalla
-                self.kill() # Elimina dicha bala'''
 
     class Disparo(pygame.sprite.Sprite):
 
@@ -372,18 +269,6 @@ def game_thread(queue):
         def __init__(self):
             super().__init__()
 
-            '''self.img_aleatoria = random.randrange(3)
-
-            if self.img_aleatoria == 0:
-                self.image = pygame.transform.scale(pygame.image.load("../Imagenes/Botiquin.png").convert(), (100,100))
-                self.radius = 50
-            elif self.img_aleatoria == 1:
-                self.image = pygame.transform.scale(pygame.image.load("../Imagenes/Botiquin.png").convert(), (50,50))
-                self.radius = 25
-            elif self.img_aleatoria == 2:
-                self.image = pygame.transform.scale(pygame.image.load("../Imagenes/Botiquin.png").convert(), (25,25))
-                self.radius = 12'''
-
             self.image = pygame.transform.scale(pygame.image.load("../Imagenes/Botiquin.png").convert(), (32,32))
             self.radius = 16
 
@@ -424,8 +309,6 @@ def game_thread(queue):
 
         ambiente.play() # Reproducimos la pista de sonido con el sonido ambiente para el videojuego
 
-        # UNA IDEA MUY INTERESANTE ES CREAR SPRITES DE BOTIQUINES PARA QUE EL PERSONAJE PUEDA RECUPERAR SALUD O VOLVER A SER HUMANO POR EJEMPLO
-
         # Iniciación de Pygame, creación de la ventana, título y control de reloj.
         pygame.init()
         pantalla = pygame.display.set_mode((ANCHO, ALTO))
@@ -444,22 +327,8 @@ def game_thread(queue):
         spritesVirus = pygame.sprite.Group() 
         spritesBotiquines = pygame.sprite.Group()
 
-        #max_enemies = 5 # Establecemos el máximo de enemigos
-
         jugador = Jugador()
         sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
-
-        '''# Instanciación de los objetos enemigos
-        enemigoNivel1 = Enemigo("../Imagenes/Enemigo1.png", AZUL, 35, 2)
-        enemigoNivel2 = Enemigo("../Imagenes/Enemigo2.png", VERDE, 35, 3)
-        enemigoNivel3 = Enemigo("../Imagenes/Enemigo3.png", VERDE, 35, 4)'''
-
-        '''# Instanciación de los virus
-        for x in range(2):
-            virus = Virus()
-            spritesVirus.add(virus)'''
-
-        #lista_enemigos = [] # Creamos la lista de enemigos para guardarnos las referencias y poder borrarlos posteriormente del juego
 
         fondo = pygame.image.load("../Imagenes/Fondo.png").convert()
 
@@ -479,33 +348,7 @@ def game_thread(queue):
                 # Si recibimos un mensaje de texto
                 if isinstance(mensaje, str):
 
-                    '''if mensaje == 'Init': # Si se recibe este mensaje es para introducir al jugador en la partida
-
-                        # EL ORDEN EN EL QUE INSTANCIAMOS LOS SPRITES DETERMINA CUAL APARECE POR ENCIMA DE OTRO, EL ÚLTIMO INSTANCIADO APARECERÁ POR ENCIMA 
-
-                        """for x in range(random.randrange(max_enemies) + 1): # Generamos de 1 a 5 enemigos de forma aleatoria (con el +1 nos aseguramos que siempre va a haber por lo menos un enemigo instanciado)
-                            lista_enemigos.append(enemigo) # Nos guardamos la referencia de cada enemigo en una lista para poder borrarlos todos cuando finalice el juego
-                            spritesEnemigos.add(enemigo)
-                        
-                        spritesEnemigosNivel1.add(enemigoNivel1)
-                        spritesEnemigosNivel2.add(enemigoNivel2)
-                        spritesEnemigosNivel3.add(enemigoNivel3)"""
-
-                        puntuacion = 0 # Reiniciamos la puntuación'''
-
                     if mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que termine la ejecución del juego
-
-                        """sprites.remove(jugador) # Eliminamos al personaje de la pantalla
-                        #jugador = None
-
-                        for enemigo in lista_enemigos: # Eliminamos todos los sprites de enemigos de la pantalla
-                            sprites.remove(enemigo)"""
-                        
-                        #jugador.kill() 
-
-                        #spritesEnemigos.empty()
-                        
-                        #lista_enemigos.clear() # Vaciamos la lista de enemigos
                         
                         font = pygame.font.SysFont(None, 100)
 
@@ -521,13 +364,12 @@ def game_thread(queue):
                         screen = pygame.display.get_surface()
                         screen.blit(text, (x,y)) # Vamos a centrar el texto en la ventana de Pygame
                         pygame.display.update() 
-                        #end_session()
                         time.sleep(5)
                         ejecutando = False # Indicamos que el bucle de juego va a terminar
 
                     elif mensaje == 'arriba' or mensaje == 'abajo' or mensaje == 'izquierda' or mensaje == 'derecha' or mensaje == 'arriba izquierda' or mensaje == 'arriba derecha' or mensaje == 'abajo izquierda' or mensaje == 'abajo derecha': # Si se nos ha pedido mover el personaje
                         
-                        jugador.ejecutaMovimiento(mensaje)
+                        jugador.ejecutaAccion(mensaje)
 
                         # Dibujamos los sprites en la pantalla
                         sprites.draw(pantalla)
@@ -574,8 +416,6 @@ def game_thread(queue):
             for event in pygame.event.get(): # Obtenemos una lista de todos los eventos en la cola de eventos de Pygame, que incluyen eventos del teclado, del mouse, de la ventana, etc.
                 if event.type == pygame.QUIT: # Si el evento es de tipo `QUIT` indica que el usuario ha hecho clic en el botón "X" para cerrar la ventana.
                     ejecutando = False
-                    #pygame.quit()
-                    #sys.exit()
 
             # Actualización de sprites
             sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la pantalla
@@ -633,28 +473,10 @@ def game_thread(queue):
                 jugador.hp += 10
                 if jugador.hp > 100:
                     jugador.hp = 100
-
-            # Indicamos que el sprite de los enemigos va a ser el que provoque la colisión sobre el grupo de sprites colisionados (spritesEnemigos) y que no queremos que por defecto haya kill a los enemigos (False)
-            #colision_personaje = pygame.sprite.spritecollide(jugador, spritesVirus, False, pygame.sprite.collide_circle) # spritecollide nos permite utilizar un sprite contra un grupo y ahí generamos una colisión, además aquí le indicamos que trabaje con colisiones circulares
-
-            #colision_enemigo = pygame.sprite.spritecollide(jugador, spritesEnemigos, False, pygame.sprite.collide_circle) # spritecollide nos permite utilizar un sprite contra un grupo y ahí generamos una colisión, además aquí le indicamos que trabaje con colisiones circulares
-
-            #colision_disparos = pygame.sprite.groupcollide(spritesEnemigos, spritesBalas, False, True) # Para colisiones grupales, el False sirve para que cuando se cree la colisión no se eliminan los enemigos, y el True sirve para que se eliminen las balas cada vez que impacten en algún enemigo  
-
-            '''if colision_disparos:
-                enemigo.image = pygame.image.load("../Imagenes/Sangre.png").convert()
-                enemigo.image.set_colorkey(ROJO)
-                enemigo.velocidad_y += 10 # Hacemos que el enemigo eliminado caiga hacia abajo
-            if enemigo.rect.top > ALTO:
-                enemigo.kill()
-            if colision_personaje or colision_enemigo: 
-                jugador.image = pygame.image.load("../Imagenes/Enemigo.png").convert()
-                jugador.image.set_colorkey(VERDE)'''
             
             colision_jugador_enemigosNivel1 = pygame.sprite.spritecollide(jugador, spritesEnemigosNivel1, True, pygame.sprite.collide_circle) 
             if colision_jugador_enemigosNivel1: 
                 sonidoHerido.play()
-                # Podemos añadir un sonido si queremos con explosion1.play por ejemplo
                 # Podemos añadir una animación de explosión o de contacto
                 jugador.hp -= 15
                 if puntuacion >= 0: 
@@ -666,7 +488,6 @@ def game_thread(queue):
             colision_jugador_enemigosNivel2 = pygame.sprite.spritecollide(jugador, spritesEnemigosNivel2, True, pygame.sprite.collide_circle) 
             if colision_jugador_enemigosNivel2:
                 sonidoHerido.play() 
-                # Podemos añadir un sonido si queremos con explosion2.play por ejemplo
                 # Podemos añadir una animación de explosión o de contacto
                 jugador.hp -= 25
                 if puntuacion >= 0: 
@@ -677,7 +498,6 @@ def game_thread(queue):
             colision_jugador_enemigosNivel3 = pygame.sprite.spritecollide(jugador, spritesEnemigosNivel3, True, pygame.sprite.collide_circle) 
             if colision_jugador_enemigosNivel3:
                 sonidoHerido.play() 
-                # Podemos añadir un sonido si queremos con explosion3.play por ejemplo
                 # Podemos añadir una animación de explosión o de contacto
                 jugador.hp -= 35
                 if puntuacion >= 0: 
@@ -690,7 +510,6 @@ def game_thread(queue):
             if colision_disparos_enemigosNivel1:
                 puntuacion += 100
                 impactoDisparo.play()
-                #impactos_random[random.randrange(0,3)].play() # Si queremos que el sonido sea aleatorio
                 enemigoNivel1.hp -= 15
 
             if enemigoNivel1.hp <= 0:
@@ -701,7 +520,6 @@ def game_thread(queue):
             if colision_disparos_enemigosNivel2:
                 puntuacion += 200
                 impactoDisparo.play()
-                #impactos_random[random.randrange(0,3)].play() # Si queremos que el sonido sea aleatorio
                 enemigoNivel2.hp -= 15
 
             if enemigoNivel2.hp <= 0:
@@ -712,17 +530,11 @@ def game_thread(queue):
             if colision_disparos_enemigosNivel3:
                 puntuacion += 300
                 impactoDisparo.play()
-                #impactos_random[random.randrange(0,3)].play() # Si queremos que el sonido sea aleatorio
                 enemigoNivel3.hp -= 15
 
             if enemigoNivel3.hp <= 0:
                 enemigoNivel3.kill()
 
-            '''if jugador.hp <= 0: # Si el jugador se queda sin vida se termina el juego
-                ejecutando = False'''
-
-            # Fondo de pantalla, dibujo de sprites y formas geométricas
-            #pantalla.fill(NEGRO) # Establecemos el color de fondo de la pantalla
             sprites.draw(pantalla) # Dibujamos los sprites en la pantalla
             spritesEnemigosNivel1.draw(pantalla)
             spritesEnemigosNivel2.draw(pantalla)
@@ -730,8 +542,6 @@ def game_thread(queue):
             spritesBalas.draw(pantalla)
             spritesVirus.draw(pantalla)
             spritesBotiquines.draw(pantalla)
-            #pygame.draw.line(pantalla, H_50D2FE, (400, 0), (400, 800), 1)
-            #pygame.draw.line(pantalla, AZUL, (0, 300), (800, 300), 1)
 
             warning = pygame.image.load("../Imagenes/WarningMini.png").convert()
             warning.set_colorkey(VERDE)
@@ -775,8 +585,6 @@ def game_thread(queue):
                 muerte_1 = pantalla.blit(pygame.transform.scale(cruz, (25,25)), (510,15))
                 muerte_2 = pantalla.blit(pygame.transform.scale(cruz, (25,25)), (475,15))
                 muerte_3 = pantalla.blit(pygame.transform.scale(cruz, (25,25)), (440,15))
-                #break
-                #queue.put('Endgame') # Terminamos el juego
                 peticion_endgame = False
                 while peticion_endgame == False:
 
@@ -793,25 +601,11 @@ def game_thread(queue):
                     screen = pygame.display.get_surface()
                     screen.blit(textoGameOver, (x,y)) # Vamos a centrar el texto en la ventana de Pygame
 
-                    '''font2 = pygame.font.SysFont(None, 40)
-                    textoInformativo = font2.render('Di "fin del juego" para finalizar', True, ROJO)
-
-                    # Obtener las dimensiones del texto
-                    #text_width, text_height = font.size("Di fin del juego para finalizar")
-
-                    # Calcular la posición para centrar el texto
-                    #x = (ANCHO - text_width) // 2
-                    #y = (ALTO - text_height) // 2
-
-                    screen.blit(textoInformativo, (x,y+75))'''
-
                     pygame.display.update()
 
                     mensaje = queue.get() # Bloqueamos el hilo de ejecución a la espera de la solicitud de fin del juego
                     if mensaje == 'Endgame':
                         peticion_endgame = True
-                        #end_session()
-                        #time.sleep(10)
                         ejecutando = False # Indicamos que el bucle de juego va a terminar
 
             # Si se alcanza una puntuación de 1000 se gana la partida
@@ -832,11 +626,6 @@ def game_thread(queue):
 
                     screen = pygame.display.get_surface()
                     screen.blit(textoWin, (x,y)) # Vamos a centrar el texto en la ventana de Pygame
-
-                    '''font2 = pygame.font.SysFont(None, 40)
-                    textoInformativo = font2.render('Di "fin del juego" para finalizar', True, VERDE)
-
-                    screen.blit(textoInformativo, (x+15,y+75))'''
 
                     pygame.display.update()
 
