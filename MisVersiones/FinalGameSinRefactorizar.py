@@ -300,14 +300,31 @@ def game_thread(queue):
     class Enemigo(pygame.sprite.Sprite):
 
         # Sprite del enemigo
-        def __init__(self, rutaImagen, colorFondo, radio, velocidad_maxima, vida):
+        def __init__(self, colorFondo, radio, velocidad_maxima, vida, nivel):
 
             # Heredamos el init de la clase Sprite de Pygame
             super().__init__()
 
+            # Nivel del enemigo
+            self.nivel = nivel
+
+            # Color de fondo de la imagen
+            self.colorFondo = colorFondo
+
+            # Dependiendo del nivel del enemigo creado le asignamos una imagen y otra
+            if nivel == 1:
+                self.rutaImagen = "../Imagenes/Enemigo1.png"
+                self.rutaImagenGirada = "../Imagenes/Enemigo1Girado.png"
+            elif nivel == 2:
+                self.rutaImagen = "../Imagenes/Enemigo2.png"
+                self.rutaImagenGirada = "../Imagenes/Enemigo2Girado.png"
+            elif nivel == 3:
+                self.rutaImagen = "../Imagenes/Enemigo3.png"
+                self.rutaImagenGirada = "../Imagenes/Enemigo3Girado.png"
+
             # Rectángulo (enemigo), recordemos que las imágenes en Pygame son rectángulos
             #self.image = pygame.image.load(rutaImagen).convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
-            self.image = pygame.transform.scale(pygame.image.load(rutaImagen).convert(), (79, 117)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
+            self.image = pygame.transform.scale(pygame.image.load(self.rutaImagen).convert(), (79, 117)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
 
             self.image.set_colorkey(colorFondo) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
 
@@ -345,10 +362,17 @@ def game_thread(queue):
             # Limita el margen izquierdo y hacemos que el enemigo rebote
             if self.rect.left < 0: # Cada vez que toque el borde izquierdo e intente salir de la pantalla 
                 self.velocidad_x += 1 # Hacemos que rebote
+                # Modificamos la imagen para reflejar el cambio de orientación
+                self.image = pygame.transform.scale(pygame.image.load(self.rutaImagen).convert(), (79, 117)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
+                self.image.set_colorkey(self.colorFondo) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
+
 
             # Limita el margen derecho
             if self.rect.right > ANCHO:
                 self.velocidad_x -= 1
+                # Modificamos la imagen para reflejar el cambio de orientación
+                self.image = pygame.transform.scale(pygame.image.load(self.rutaImagenGirada).convert(), (79, 117)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
+                self.image.set_colorkey(self.colorFondo) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
 
             # Limita el margen inferior
             if self.rect.bottom > ALTO:
@@ -657,13 +681,13 @@ def game_thread(queue):
             # ESTO ES PARA HACER PRUEBAS PARA QUE EL JUEGO NO SE QUEDE VACÍO AL ACABAR CON TODOS LOS ENEMIGOS
             if not spritesEnemigosNivel1 and not spritesEnemigosNivel2 and not spritesEnemigosNivel3:
 
-                enemigoNivel1 = Enemigo("../Imagenes/Enemigo1.png", AZUL, 35, 2, 15)
+                enemigoNivel1 = Enemigo(AZUL, 35, 2, 15, 1)
                 spritesEnemigosNivel1.add(enemigoNivel1)
 
-                enemigoNivel2 = Enemigo("../Imagenes/Enemigo2.png", VERDE, 35, 3, 30)
+                enemigoNivel2 = Enemigo(VERDE, 35, 3, 30, 2)
                 spritesEnemigosNivel2.add(enemigoNivel2)
 
-                enemigoNivel3 = Enemigo("../Imagenes/Enemigo3.png", VERDE, 35, 4, 45)
+                enemigoNivel3 = Enemigo(VERDE, 35, 4, 45, 3)
                 spritesEnemigosNivel3.add(enemigoNivel3)
 
             colision_disparos_virus = pygame.sprite.groupcollide(spritesVirus, spritesBalas, True, True, pygame.sprite.collide_circle)
