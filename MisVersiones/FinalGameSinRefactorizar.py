@@ -308,7 +308,7 @@ def game_thread(queue):
     class Enemigo(pygame.sprite.Sprite):
 
         # Sprite del enemigo
-        def __init__(self, colorFondo, radio, velocidad_maxima, vida, nivel):
+        def __init__(self, colorFondo, radio, vida, nivel):
 
             # Heredamos el init de la clase Sprite de Pygame
             super().__init__()
@@ -319,16 +319,22 @@ def game_thread(queue):
             # Color de fondo de la imagen
             self.colorFondo = colorFondo
 
-            # Dependiendo del nivel del enemigo creado le asignamos una imagen y otra
+            # Dependiendo del nivel del enemigo creado le asignamos una imagen y otra, y una velocidad u otra
             if nivel == 1:
                 self.rutaImagen = "../Imagenes/Enemigo1.png"
                 self.rutaImagenGirada = "../Imagenes/Enemigo1Girado.png"
+                self.velocidad_x = 1
+                self.velocidad_y = 1
             elif nivel == 2:
                 self.rutaImagen = "../Imagenes/Enemigo2.png"
                 self.rutaImagenGirada = "../Imagenes/Enemigo2Girado.png"
+                self.velocidad_x = 1
+                self.velocidad_y = 1
             elif nivel == 3:
                 self.rutaImagen = "../Imagenes/Enemigo3.png"
                 self.rutaImagenGirada = "../Imagenes/Enemigo3Girado.png"
+                self.velocidad_x = 1
+                self.velocidad_y = 1
 
             # Rectángulo (enemigo), recordemos que las imágenes en Pygame son rectángulos
             #self.image = pygame.image.load(rutaImagen).convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
@@ -355,8 +361,8 @@ def game_thread(queue):
             #self.velocidad_x = 5
             #self.velocidad_y = 5
             # Si en lugar de que se muevan con una velocidad establecida lo hagan con una velocidad alaatoria
-            self.velocidad_x = random.randrange(1, velocidad_maxima) # Con esto la velocidad será entre 1 y velocidad_maxima
-            self.velocidad_y = random.randrange(1, velocidad_maxima)
+            #self.velocidad_x = random.randrange(1, velocidad_maxima) # Con esto la velocidad será entre 1 y velocidad_maxima
+            #self.velocidad_y = random.randrange(1, velocidad_maxima)
 
             # Barra de vida
             self.hp = vida
@@ -699,13 +705,13 @@ def game_thread(queue):
             # ESTO ES PARA HACER PRUEBAS PARA QUE EL JUEGO NO SE QUEDE VACÍO AL ACABAR CON TODOS LOS ENEMIGOS
             if not spritesEnemigosNivel1 and not spritesEnemigosNivel2 and not spritesEnemigosNivel3:
 
-                enemigoNivel1 = Enemigo(AZUL, 35, 2, 15, 1)
+                enemigoNivel1 = Enemigo(AZUL, 35, 15, 1)
                 spritesEnemigosNivel1.add(enemigoNivel1)
 
-                enemigoNivel2 = Enemigo(VERDE, 35, 3, 30, 2)
+                enemigoNivel2 = Enemigo(VERDE, 35, 30, 2)
                 spritesEnemigosNivel2.add(enemigoNivel2)
 
-                enemigoNivel3 = Enemigo(VERDE, 35, 4, 45, 3)
+                enemigoNivel3 = Enemigo(VERDE, 35, 45, 3)
                 spritesEnemigosNivel3.add(enemigoNivel3)
 
             colision_disparos_virus = pygame.sprite.groupcollide(spritesVirus, spritesBalas, True, True, pygame.sprite.collide_circle)
