@@ -195,7 +195,7 @@ def game_thread(queue):
                 self.image = pygame.image.load("../Imagenes/PersonajeGirado.png").convert()
                 self.image.set_colorkey(VERDE)
                 self.direccionApuntado = "izquierda"
-                self.velocidad_x = -100 # Cada vez que se pulse la tecla se moverá 10px a la izquierda
+                self.velocidad_x = -125 # Cada vez que se pulse la tecla se moverá 100px a la izquierda
             
             # Mueve el personaje hacia la derecha
             elif movimiento == 'derecha':
@@ -203,20 +203,20 @@ def game_thread(queue):
                 self.image = pygame.image.load("../Imagenes/Personaje.png").convert()
                 self.image.set_colorkey(VERDE)
                 self.direccionApuntado = "derecha"
-                self.velocidad_x = 100
+                self.velocidad_x = 125
 
             # Mueve el personaje hacia arriba
             elif movimiento == 'arriba':
-                self.velocidad_y = -100 # Cada vez que se pulse la tecla se moverá 10px hacia arriba
+                self.velocidad_y = -125 # Cada vez que se pulse la tecla se moverá 100px hacia arriba
             
             # Mueve el personaje hacia abajo
             elif movimiento == 'abajo':
-                self.velocidad_y = 100
+                self.velocidad_y = 125
 
             # Mueve el personaje hacia arriba a la izquierda
             elif movimiento == 'arriba izquierda':
-                self.velocidad_x = -100
-                self.velocidad_y = -100
+                self.velocidad_x = -125
+                self.velocidad_y = -125
                 # Modificamos la orientación del personaje
                 self.image = pygame.image.load("../Imagenes/PersonajeGirado.png").convert()
                 self.image.set_colorkey(VERDE)
@@ -228,13 +228,13 @@ def game_thread(queue):
                 self.image = pygame.image.load("../Imagenes/Personaje.png").convert()
                 self.image.set_colorkey(VERDE)
                 self.direccionApuntado = "derecha"
-                self.velocidad_x = 100
-                self.velocidad_y = -100
+                self.velocidad_x = 125
+                self.velocidad_y = -125
 
             # Mueve el personaje hacia abajo a la izquierda
             elif movimiento == 'abajo izquierda':
-                self.velocidad_y = 100
-                self.velocidad_x = -100
+                self.velocidad_y = 125
+                self.velocidad_x = -125
                 # Modificamos la orientación del personaje
                 self.image = pygame.image.load("../Imagenes/PersonajeGirado.png").convert()
                 self.image.set_colorkey(VERDE)
@@ -246,8 +246,8 @@ def game_thread(queue):
                 self.image = pygame.image.load("../Imagenes/Personaje.png").convert()
                 self.image.set_colorkey(VERDE)
                 self.direccionApuntado = "derecha"
-                self.velocidad_y = 100
-                self.velocidad_x = 100
+                self.velocidad_y = 125
+                self.velocidad_x = 125
 
             # Actualiza la posición del personaje
             self.rect.x += self.velocidad_x
@@ -982,8 +982,8 @@ def start_skill():
     pygame_thread.start()
     # Indicamos a pygame que inicie el videojuego
     queue.put('Init')
-    return question('Bienvenido a Voz Letal. Dime si deseas moverte o disparar.') \
-        .reprompt("Por favor, dígame a donde quiere moverse o disparar.")
+    return question('Bienvenido a Voz Letal. ¿Deseas moverte o disparar?') \
+        .reprompt("Dígame a donde quiere moverse o disparar.")
 
 lista_direcciones = ["arriba", "abajo", "izquierda", "derecha", "arriba izquierda", "arriba derecha", "abajo derecha", "abajo izquierda"]
 
@@ -1019,8 +1019,7 @@ cuando el tiempo de espera de inactividad ha expirado.'''
 @ask.session_ended
 def session_ended():
     queue.put('Endgame')
-    return "{}", 200
-
+    #return "{}", 200
 # Definimos la ruta para la página principal de la aplicación web
 @app.route('/')
 def index():
