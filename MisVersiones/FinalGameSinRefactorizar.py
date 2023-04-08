@@ -323,18 +323,13 @@ def game_thread(queue):
             if nivel == 1:
                 self.rutaImagen = "../Imagenes/Enemigo1.png"
                 self.rutaImagenGirada = "../Imagenes/Enemigo1Girado.png"
-                self.velocidad_x = 1
-                self.velocidad_y = 1
             elif nivel == 2:
                 self.rutaImagen = "../Imagenes/Enemigo2.png"
                 self.rutaImagenGirada = "../Imagenes/Enemigo2Girado.png"
-                self.velocidad_x = 1
-                self.velocidad_y = 1
             elif nivel == 3:
                 self.rutaImagen = "../Imagenes/Enemigo3.png"
                 self.rutaImagenGirada = "../Imagenes/Enemigo3Girado.png"
-                self.velocidad_x = 1
-                self.velocidad_y = 1
+
 
             # Rectángulo (enemigo), recordemos que las imágenes en Pygame son rectángulos
             #self.image = pygame.image.load(rutaImagen).convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
@@ -358,8 +353,8 @@ def game_thread(queue):
             self.rect.y = random.randrange(ALTO - self.rect.height) # Con esto hacemos lo mismo pero para la coordenada Y
 
             # Velocidad inicial del enemigo para que se mueva sin que tenga que ocurrir nada antes
-            #self.velocidad_x = 5
-            #self.velocidad_y = 5
+            self.velocidad_x = 1
+            self.velocidad_y = 1
             # Si en lugar de que se muevan con una velocidad establecida lo hagan con una velocidad alaatoria
             #self.velocidad_x = random.randrange(1, velocidad_maxima) # Con esto la velocidad será entre 1 y velocidad_maxima
             #self.velocidad_y = random.randrange(1, velocidad_maxima)
@@ -718,7 +713,7 @@ def game_thread(queue):
 
             if colision_disparos_virus:
                 impactoDisparo.play()
-                puntuacion += 50
+                puntuacion += 100
 
             colision_jugador_virus = pygame.sprite.spritecollide(jugador, spritesVirus, pygame.sprite.collide_circle)
 
@@ -815,7 +810,7 @@ def game_thread(queue):
             colision_disparos_enemigosNivel2 = pygame.sprite.groupcollide(spritesEnemigosNivel2, spritesBalas, False, True, pygame.sprite.collide_circle)
 
             if colision_disparos_enemigosNivel2:
-                puntuacion += 200
+                puntuacion += 100
                 impactoDisparo.play()
                 #impactos_random[random.randrange(0,3)].play() # Si queremos que el sonido sea aleatorio
                 enemigoNivel2.hp -= 15
@@ -826,7 +821,7 @@ def game_thread(queue):
             colision_disparos_enemigosNivel3 = pygame.sprite.groupcollide(spritesEnemigosNivel3, spritesBalas, False, True, pygame.sprite.collide_circle)
             
             if colision_disparos_enemigosNivel3:
-                puntuacion += 300
+                puntuacion += 100
                 impactoDisparo.play()
                 #impactos_random[random.randrange(0,3)].play() # Si queremos que el sonido sea aleatorio
                 enemigoNivel3.hp -= 15
