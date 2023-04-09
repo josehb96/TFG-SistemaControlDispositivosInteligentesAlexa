@@ -195,7 +195,7 @@ def game_thread(queue):
     class Enemigo(pygame.sprite.Sprite):
 
         # Sprite del enemigo
-        def __init__(self, colorFondo, radio, vida, nivel):
+        def __init__(self, colorFondo, nivel):
 
             # Heredamos el init de la clase Sprite de Pygame
             super().__init__()
@@ -203,51 +203,41 @@ def game_thread(queue):
             # Nivel del enemigo
             self.nivel = nivel
 
-            # Color de fondo de la imagen
-            self.colorFondo = colorFondo
-
             # Dependiendo del nivel del enemigo creado le asignamos una imagen y otra, y una velocidad u otra
             if nivel == 1:
                 self.rutaImagen = "../Imagenes/Enemigo1.png"
                 self.rutaImagenGirada = "../Imagenes/Enemigo1Girado.png"
+                self.hp = 15 # Barra de vida
             elif nivel == 2:
                 self.rutaImagen = "../Imagenes/Enemigo2.png"
                 self.rutaImagenGirada = "../Imagenes/Enemigo2Girado.png"
+                self.hp = 30 # Barra de vida
             elif nivel == 3:
                 self.rutaImagen = "../Imagenes/Enemigo3.png"
                 self.rutaImagenGirada = "../Imagenes/Enemigo3Girado.png"
-
+                self.hp = 45 # Barra de vida
 
             # Rectángulo (enemigo), recordemos que las imágenes en Pygame son rectángulos
-            #self.image = pygame.image.load(rutaImagen).convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
             self.image = pygame.transform.scale(pygame.image.load(self.rutaImagen).convert(), (79, 117)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
 
-            self.image.set_colorkey(colorFondo) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
+            # Color de fondo de la imagen
+            self.colorFondo = colorFondo
 
-            # SI QUEREMOS EL RECTÁNGULO ESTÁNDAR DEL SPRITE PARA VER CÓMO FUNCIONAN LAS COLISIONES:
-            #self.image = pygame.Surface((79,117))
-            #self.image.fill(ROJO)
+            self.image.set_colorkey(colorFondo) # Con esta función podemos eliminar el color indicado por parámetro de la imagen+
 
             # Obtiene el rectángulo (sprite) de la imagen del jugador para poder manipularlo
             self.rect = self.image.get_rect()
 
             # Vamos a utilizar la técnica matemática CIRCULAR BOUNDING BOX para mejorar las colisiones
-            self.radius = radio # Establecemos el radio
-            #pygame.draw.circle(self.image, ROJO, self.rect.center, self.radius) # Para hacer pruebas
+            self.radius = 35 # Establecemos el radio
 
-            # Hacemos que el enemigo pueda aparecer en cualquier lugar de la pantalla de forma aleatoria
+            # Hacemos que el enemigo aparezca de forma aleatoria de la mitad hacia arriba de la ventana de pygame
             self.rect.x = random.randrange(ANCHO - self.rect.width) # Con esto vamos a poner como coordenada X del sprite un número aleatorio entre todos los píxeles del ancho de la pantalla y además controlamos que no se coloque fuera de los márgenes de la pantalla ya que tendrá en cuenta el ancho del propio rectángulo
-            self.rect.y = random.randrange(ALTO - self.rect.height) # Con esto hacemos lo mismo pero para la coordenada Y
+            self.rect.y = random.randrange(ALTO/2 - self.rect.height) # Con esto hacemos lo mismo pero para la coordenada Y, pero limitando a la mitad de la ventana
 
             # Velocidad inicial del enemigo para que se mueva sin que tenga que ocurrir nada antes
             self.velocidad_x = 1
             self.velocidad_y = 1
-            # Si en lugar de que se muevan con una velocidad establecida lo hagan con una velocidad alaatoria
-            #self.velocidad_x = random.randrange(1, velocidad_maxima) # Con esto la velocidad será entre 1 y velocidad_maxima
-            #self.velocidad_y = random.randrange(1, velocidad_maxima)
-
-            # Barra de vida
-            self.hp = vida
 
         def update(self):
 
@@ -261,7 +251,6 @@ def game_thread(queue):
                 # Modificamos la imagen para reflejar el cambio de orientación
                 self.image = pygame.transform.scale(pygame.image.load(self.rutaImagen).convert(), (79, 117)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
                 self.image.set_colorkey(self.colorFondo) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
-
 
             # Limita el margen derecho
             if self.rect.right > ANCHO:
@@ -277,21 +266,6 @@ def game_thread(queue):
             # Limita el margen superior
             if self.rect.top < 0:
                 self.velocidad_y += 1
-
-    '''class Disparo(pygame.sprite.Sprite):
-        def __init__(self, x, y): # Los parámetros x e y son para indicar la posición exacta de la zona donde se van a generar los disparos
-            super().__init__()
-            self.image = pygame.transform.scale(pygame.image.load("../Imagenes/bala.png").convert(), (20, 20)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
-            self.image.set_colorkey(VERDE)
-            self.rect = self.image.get_rect() # Obtenemos el rectángulo de la imagen
-            self.rect.bottom = y # La posición y va a ser la parte baja del rectángulo de la bala
-            self.rect.centerx = x # Centramos a la posición de en medio del rectángulo del jugador
-        
-        def update(self):
-            self.rect.x += 25
-            #self.rect.y -= 25 # Con esto conseguimos que las balas vayan hacia arriba
-            if self.rect.bottom < 0: # Cuando la bala salga por la parte superior de la pantalla
-                self.kill() # Elimina dicha bala'''
 
     class Disparo(pygame.sprite.Sprite):
 
@@ -587,13 +561,13 @@ def game_thread(queue):
             # ESTO ES PARA HACER PRUEBAS PARA QUE EL JUEGO NO SE QUEDE VACÍO AL ACABAR CON TODOS LOS ENEMIGOS
             if not spritesEnemigosNivel1 and not spritesEnemigosNivel2 and not spritesEnemigosNivel3:
 
-                enemigoNivel1 = Enemigo(AZUL, 35, 15, 1)
+                enemigoNivel1 = Enemigo(AZUL, 1)
                 spritesEnemigosNivel1.add(enemigoNivel1)
 
-                enemigoNivel2 = Enemigo(VERDE, 35, 30, 2)
+                enemigoNivel2 = Enemigo(VERDE, 2)
                 spritesEnemigosNivel2.add(enemigoNivel2)
 
-                enemigoNivel3 = Enemigo(VERDE, 35, 45, 3)
+                enemigoNivel3 = Enemigo(VERDE, 3)
                 spritesEnemigosNivel3.add(enemigoNivel3)
 
             colision_disparos_virus = pygame.sprite.groupcollide(spritesVirus, spritesBalas, True, True, pygame.sprite.collide_circle)
