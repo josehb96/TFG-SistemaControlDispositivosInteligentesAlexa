@@ -821,8 +821,6 @@ def game_thread(queue):
         bombilla.turnOff() # Apagamos la bombilla
         pygame.quit()
 
-pygame_thread = None
-
 @ask.launch # Para cuando el usuario lanza la skill
 def start_skill():
     # Creamos el hilo de Pygame y lo iniciamos
@@ -831,7 +829,7 @@ def start_skill():
     # Indicamos a pygame que inicie el videojuego
     queue.put('Init')
     return question('Bienvenido a Voz Letal. ¿Deseas moverte o disparar?') \
-        .reprompt("Dígame a donde quiere moverse o disparar.")
+        .reprompt("Dígame a dónde quiere moverse o disparar.")
 
 lista_direcciones = ["arriba", "abajo", "izquierda", "derecha", "arriba izquierda", "arriba derecha", "abajo derecha", "abajo izquierda"]
 
@@ -867,7 +865,8 @@ cuando el tiempo de espera de inactividad ha expirado.'''
 @ask.session_ended
 def session_ended():
     queue.put('Endgame')
-    #return "{}", 200
+    return "{}", 200
+
 # Definimos la ruta para la página principal de la aplicación web
 @app.route('/')
 def index():
@@ -876,7 +875,3 @@ def index():
 if __name__ == '__main__':
 
     app.run(host='0.0.0.0', debug=False) # Si desactivamos el modo debug evitamos que nos abra 2 ventanas de pygame
-    # Cuando la aplicación web se detiene, enviamos un mensaje None a la cola
-    queue.put(None)
-    # Esperamos a que el hilo de Pygame termine
-    #pygame_thread.join()
