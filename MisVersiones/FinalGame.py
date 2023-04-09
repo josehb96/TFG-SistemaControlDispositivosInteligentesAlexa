@@ -292,6 +292,7 @@ def game_thread(queue):
 
     class Virus(pygame.sprite.Sprite):
         def __init__(self):
+
             super().__init__()
 
             self.img_aleatoria = random.randrange(3)
@@ -322,36 +323,21 @@ def game_thread(queue):
 
     class Botiquin(pygame.sprite.Sprite):
         def __init__(self):
+
             super().__init__()
-
-            '''self.img_aleatoria = random.randrange(3)
-
-            if self.img_aleatoria == 0:
-                self.image = pygame.transform.scale(pygame.image.load("../Imagenes/Botiquin.png").convert(), (100,100))
-                self.radius = 50
-            elif self.img_aleatoria == 1:
-                self.image = pygame.transform.scale(pygame.image.load("../Imagenes/Botiquin.png").convert(), (50,50))
-                self.radius = 25
-            elif self.img_aleatoria == 2:
-                self.image = pygame.transform.scale(pygame.image.load("../Imagenes/Botiquin.png").convert(), (25,25))
-                self.radius = 12'''
 
             self.image = pygame.transform.scale(pygame.image.load("../Imagenes/Botiquin.png").convert(), (32,32))
             self.radius = 16
-
-            #self.image.set_colorkey(ROJO)
             self.rect = self.image.get_rect()
             self.rect.x = random.randrange(ANCHO - self.rect.width) # Posición inicial en la coordenada "x" que van a tomar los botiquines instanciados evitando que se generen a medio trozo de la pantalla
             self.rect.y = -self.rect.width # Posicion inicial en la coordenada "y". Evitamos que se genere por dentro de la pantalla
-            self.velocidad_y = random.randrange(1, 2)
+            self.velocidad_y = 1
         
         def update(self):
             self.rect.y += self.velocidad_y # Para que vaya el botiquin hacia abajo
             if self.rect.top > ALTO: # Si el botiquin desaparece de la pantalla por debajo, entonces que vuelva a tomar los valores iniciales
                 self.rect.x = random.randrange(ANCHO - self.rect.width)
                 self.rect.y = -self.rect.width
-                # ANCHO
-                self.velocidad_y = random.randrange(1, 2) # Y además que vuelva a tomar una velocidad aleatoria diferente
 
     def barra_hp(pantalla, x, y, hp):
         largo = 200
