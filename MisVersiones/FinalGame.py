@@ -178,7 +178,7 @@ def game_thread(queue):
                     # Modificamos la orientación del personaje
                     self.image = pygame.image.load("../Imagenes/Personaje.png").convert()
                     self.image.set_colorkey(VERDE)
-                bala = Disparo(self.rect.right -20 , self.rect.centery + 7, direccion)
+                bala = Disparo(self.rect.right -29 , self.rect.centery -13, direccion)
                 spritesBalas.add(bala)
                 sonidoDisparo.play() # Para activar el sonido al disparar
                 self.direccionApuntado = "derecha"
@@ -187,7 +187,7 @@ def game_thread(queue):
                     # Modificamos la orientación del personaje
                     self.image = pygame.image.load("../Imagenes/PersonajeGirado.png").convert()
                     self.image.set_colorkey(VERDE)
-                bala = Disparo(self.rect.left +20 , self.rect.centery + 7, direccion)
+                bala = Disparo(self.rect.left +7 , self.rect.centery -13, direccion)
                 spritesBalas.add(bala)
                 sonidoDisparo.play() # Para activar el sonido al disparar
                 self.direccionApuntado = "izquierda"
@@ -274,20 +274,20 @@ def game_thread(queue):
             self.image = pygame.transform.scale(pygame.image.load("../Imagenes/bala.png").convert(), (20, 20)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
             self.image.set_colorkey(VERDE)
             self.rect = self.image.get_rect() # Obtenemos el rectángulo de la imagen
-            self.rect.bottom = y # La posición y va a ser la parte baja del rectángulo de la bala
-            self.rect.centerx = x # Centramos a la posición de en medio del rectángulo del jugador
+            #self.rect.bottom = y # La posición y va a ser la parte baja del rectángulo de la bala
+            #self.rect.centerx = x # Centramos a la posición de en medio del rectángulo del jugador
+            self.rect.x = x
+            self.rect.y = y
             self.direccion = direccionDisparo
                     
         def update(self):
             if self.direccion == "derecha":
                 self.rect.x += 25
-                #self.rect.y -= 25 # Con esto conseguimos que las balas vayan hacia arriba
-                if self.rect.bottom < 0: # Cuando la bala salga por la parte superior de la pantalla
+                if self.rect.x > ANCHO: # Cuando la bala salga por la parte derecha de la pantalla
                     self.kill() # Elimina dicha bala
             elif self.direccion == "izquierda":
                 self.rect.x -= 25
-                #self.rect.y -= 25 # Con esto conseguimos que las balas vayan hacia arriba
-                if self.rect.bottom < 0: # Cuando la bala salga por la parte superior de la pantalla
+                if self.rect.x < 0: # Cuando la bala salga por la parte izquierda de la pantalla
                     self.kill() # Elimina dicha bala
 
     class Virus(pygame.sprite.Sprite):
