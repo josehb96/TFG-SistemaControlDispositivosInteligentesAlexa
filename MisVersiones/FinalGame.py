@@ -16,7 +16,6 @@ bombilla = PyL530.L530("192.168.68.100", "jose_basket96@hotmail.com", ".dF3-1Cse
 bombilla.handshake() # Creamos las cookies necesarias para más métodos
 bombilla.login() # Se envían las credenciales de inicio de sesión a la bombilla y se crea una clave y un vector de inicialización AES para su uso en métodos posteriores
 
-
 # Creamos una cola para compartir información entre los hilos
 queue = Queue()
 
@@ -31,21 +30,14 @@ def game_thread(queue):
     FPS = 30
 
     # Paleta de colores en RGB
-    NEGRO = (0,0,0)
-    BLANCO = (255,255,255)
     ROJO = (255,0,0)
-    H_FA2F2F = (250,47,47)
     VERDE = (0,255,0)
     VERDE2 = (162,255,177)
     AZUL = (0,0,255)
-    H_50D2FE = (94,210,254)
-    AZUL2 = (64,64,255)
 
     # Fuentes
     consolas = pygame.font.match_font('consolas')
     times = pygame.font.match_font('times')
-    arial = pygame.font.match_font('arial')
-    courier = pygame.font.match_font('courier')
 
     # Sonidos
     pygame.mixer.init() # Iniciamos el mixer de pygame
@@ -273,8 +265,6 @@ def game_thread(queue):
             self.image = pygame.transform.scale(pygame.image.load("../Imagenes/bala.png").convert(), (20, 20)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
             self.image.set_colorkey(VERDE)
             self.rect = self.image.get_rect() # Obtenemos el rectángulo de la imagen
-            #self.rect.bottom = y # La posición y va a ser la parte baja del rectángulo de la bala
-            #self.rect.centerx = x # Centramos a la posición de en medio del rectángulo del jugador
             self.rect.x = x
             self.rect.y = y
             self.direccion = direccionDisparo
@@ -349,7 +339,7 @@ def game_thread(queue):
         pygame.draw.rect(pantalla, VERDE, rectangulo)
 
 
-    def muestra_texto(pantalla, fuente, texto, color, dimensiones, x, y): 
+    def mostrar_texto(pantalla, fuente, texto, color, dimensiones, x, y): 
         tipo_letra = pygame.font.Font(fuente, dimensiones) # Las dimensiones son el tamaño en px de la fuente
         superficie = tipo_letra.render(texto, True, color) # Creamos una variable para mostrar el texto, el True es si queremos que use antialiasing
         rectangulo = superficie.get_rect()
@@ -372,7 +362,7 @@ def game_thread(queue):
         bombilla.setBrightness(50) # Establecemos el brillo de la bombilla al 50%
 
         # Sistema de puntuaciones
-        puntuacion = 0
+        puntos = 0
 
         # Grupo de sprites
         sprites = pygame.sprite.Group() # Se agrupan los sprites para que trabajen en un conjunto y se almacene en la variable que queramos
@@ -406,20 +396,9 @@ def game_thread(queue):
                     if mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que termine la ejecución del juego
 
                         bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que hemos perdido la partida o está se ha terminado precipitadamente
-                        
-                        font = pygame.font.SysFont(None, 100)
 
-                        text = font.render('GAME OVER', True, ROJO)
+                        mostrar_texto(pantalla, times, "GAME OVER", ROJO, 100, 400, 300)
 
-                        # Obtener las dimensiones del texto
-                        text_width, text_height = font.size("GAME OVER")
-
-                        # Calcular la posición para centrar el texto
-                        x = (ANCHO - text_width) // 2
-                        y = (ALTO - text_height) // 2
-
-                        screen = pygame.display.get_surface()
-                        screen.blit(text, (x,y)) # Vamos a centrar el texto en la ventana de Pygame
                         pygame.display.update() 
                         time.sleep(5)
                         ejecutando = False # Indicamos que el bucle de juego va a terminar
@@ -441,10 +420,6 @@ def game_thread(queue):
                                 jugador.disparo("derecha")
                             elif jugador.direccionApuntado == "izquierda":
                                 jugador.disparo("izquierda")
-
-                        # Por si queremos añadir animación en la bombilla simulando un disparo
-                        #bombilla.setBrightness(100)
-                        #bombilla.setBrightness(50)
 
             # Es lo que especifica la velocidad del bucle de juego
             clock.tick(FPS)
@@ -490,7 +465,7 @@ def game_thread(queue):
 
             if colision_disparos_virus:
                 impactoDisparo.play()
-                puntuacion += 100
+                puntos += 100
 
             colision_jugador_virus = pygame.sprite.spritecollide(jugador, spritesVirus, True, pygame.sprite.collide_circle)
 
@@ -498,10 +473,10 @@ def game_thread(queue):
                 bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que el personaje ha sido herido
                 sonidoHerido.play()
                 jugador.hp -= 50
-                if puntuacion >= 0:
-                    puntuacion -= 100
-                    if puntuacion < 0:
-                        puntuacion = 0
+                if puntos >= 0:
+                    puntos -= 100
+                    if puntos < 0:
+                        puntos = 0
                 bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
 
             colision_jugador_botiquines = pygame.sprite.spritecollide(jugador, spritesBotiquines, True, pygame.sprite.collide_circle)
@@ -520,10 +495,10 @@ def game_thread(queue):
                 sonidoHerido.play()
                 # Podemos añadir una animación de explosión o de contacto
                 jugador.hp -= 15
-                if puntuacion >= 0: 
-                    puntuacion -= 50
-                    if puntuacion < 0: # Para evitar que aparezca una puntuación negativa
-                        puntuacion = 0
+                if puntos >= 0: 
+                    puntos -= 50
+                    if puntos < 0: # Para evitar que aparezca una puntuación negativa
+                        puntos = 0
                 bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
 
             colision_jugador_enemigosNivel2 = pygame.sprite.spritecollide(jugador, spritesEnemigosNivel2, True, pygame.sprite.collide_circle) 
@@ -532,10 +507,10 @@ def game_thread(queue):
                 sonidoHerido.play() 
                 # Podemos añadir una animación de explosión o de contacto
                 jugador.hp -= 25
-                if puntuacion >= 0: 
-                    puntuacion -= 100
-                    if puntuacion < 0: # Para evitar que aparezca una puntuación negativa
-                        puntuacion = 0
+                if puntos >= 0: 
+                    puntos -= 100
+                    if puntos < 0: # Para evitar que aparezca una puntuación negativa
+                        puntos = 0
                 bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
 
 
@@ -545,16 +520,16 @@ def game_thread(queue):
                 sonidoHerido.play() 
                 # Podemos añadir una animación de explosión o de contacto
                 jugador.hp -= 35
-                if puntuacion >= 0: 
-                    puntuacion -= 150
-                    if puntuacion < 0: # Para evitar que aparezca una puntuación negativa
-                        puntuacion = 0
+                if puntos >= 0: 
+                    puntos -= 150
+                    if puntos < 0: # Para evitar que aparezca una puntuación negativa
+                        puntos = 0
                 bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
 
             colision_disparos_enemigosNivel1 = pygame.sprite.groupcollide(spritesEnemigosNivel1, spritesBalas, False, True, pygame.sprite.collide_circle) 
             
             if colision_disparos_enemigosNivel1:
-                puntuacion += 100
+                puntos += 100
                 impactoDisparo.play()
                 enemigoNivel1.hp -= 15
 
@@ -564,7 +539,7 @@ def game_thread(queue):
             colision_disparos_enemigosNivel2 = pygame.sprite.groupcollide(spritesEnemigosNivel2, spritesBalas, False, True, pygame.sprite.collide_circle)
 
             if colision_disparos_enemigosNivel2:
-                puntuacion += 100
+                puntos += 150
                 impactoDisparo.play()
                 enemigoNivel2.hp -= 15
 
@@ -574,7 +549,7 @@ def game_thread(queue):
             colision_disparos_enemigosNivel3 = pygame.sprite.groupcollide(spritesEnemigosNivel3, spritesBalas, False, True, pygame.sprite.collide_circle)
             
             if colision_disparos_enemigosNivel3:
-                puntuacion += 100
+                puntos += 200
                 impactoDisparo.play()
                 enemigoNivel3.hp -= 15
 
@@ -638,18 +613,8 @@ def game_thread(queue):
 
                     bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que hemos perdido la partida
 
-                    font = pygame.font.SysFont(None, 100)
-                    textoGameOver = font.render('GAME OVER', True, ROJO) # True (antialias) es para que la superficie del texto se suavice y obtener bordes más suaves
+                    mostrar_texto(pantalla, times, "GAME OVER", ROJO, 100, 400, 300)
 
-                    # Obtener las dimensiones del texto
-                    text_width, text_height = font.size("GAME OVER")
-
-                    # Calcular la posición para centrar el texto
-                    x = (ANCHO - text_width) // 2
-                    y = (ALTO - text_height) // 2
-
-                    screen = pygame.display.get_surface()
-                    screen.blit(textoGameOver, (x,y)) # Vamos a centrar el texto en la ventana de Pygame
 
                     pygame.display.update()
 
@@ -659,25 +624,14 @@ def game_thread(queue):
                         ejecutando = False # Indicamos que el bucle de juego va a terminar
 
             # Si se alcanza una puntuación de 1000 se gana la partida
-            if puntuacion >= 1000:
+            if puntos >= 1000:
                 
                 bombilla.setColor(120, 100) # Ponemos la bombilla de color verde para indicar que hemos ganado la partida
 
                 peticion_endgame = False
                 while peticion_endgame == False:
 
-                    font = pygame.font.SysFont(None, 100)
-                    textoWin = font.render('HAS GANADO', True, VERDE) # True (antialias) es para que la superficie del texto se suavice y obtener bordes más suaves
-
-                    # Obtener las dimensiones del texto
-                    text_width, text_height = font.size("HAS GANADO")
-
-                    # Calcular la posición para centrar el texto
-                    x = (ANCHO - text_width) // 2
-                    y = (ALTO - text_height) // 2
-
-                    screen = pygame.display.get_surface()
-                    screen.blit(textoWin, (x,y)) # Vamos a centrar el texto en la ventana de Pygame
+                    mostrar_texto(pantalla, times, "HAS GANADO", VERDE, 100, 400, 300)
 
                     pygame.display.update()
 
@@ -687,7 +641,7 @@ def game_thread(queue):
                         ejecutando = False # Indicamos que el bucle de juego va a terminar
 
             # Dibuja los textos en la pantalla
-            muestra_texto(pantalla, consolas, str(puntuacion).zfill(4), ROJO, 40, 680, 60) # Mostramos la puntuación en la pantalla
+            mostrar_texto(pantalla, consolas, str(puntos).zfill(4), ROJO, 40, 680, 60) # Mostramos la puntuación en la pantalla
 
             # Mostramos la barra del jugador actualizada
             barra_hp(pantalla, 580, 15, jugador.hp)
@@ -737,9 +691,6 @@ def endgame():
     queue.put('Endgame')
     return statement('Fin del juego.')
 
-'''En particular, la decoración "@ask.session_ended" indica que la función "session_ended" se activará cuando se produzca 
-un evento de finalización de sesión. Este evento puede ocurrir cuando el usuario cierra la aplicación de voz o 
-cuando el tiempo de espera de inactividad ha expirado.'''
 @ask.session_ended
 def session_ended():
     queue.put('Endgame')
