@@ -22,7 +22,7 @@ queue = Queue()
 # Función que maneja el hilo de Pygame
 def game_thread(queue):
 
-    # Tamaño de la pantalla de Pygame en píxeles
+    # Tamaño de la screen de Pygame en píxeles
     ANCHO = 800
     ALTO = 600
 
@@ -50,20 +50,20 @@ def game_thread(queue):
     # Para activar la música de ambiente es tán sencillo como descargar un sonido adecuado
     ambiente.play()
 
-    class Jugador(pygame.sprite.Sprite):
+    class Personaje(pygame.sprite.Sprite):
 
-        # Sprite del jugador
+        # Sprite del personaje
         def __init__(self):
 
             # Heredamos el init de la clase Sprite de Pygame
             super().__init__()
 
-            # Rectángulo (jugador), recordemos que las imágenes en Pygame son rectángulos
+            # Rectángulo (personaje), recordemos que las imágenes en Pygame son rectángulos
             self.image = pygame.image.load("../Imagenes/Personaje.png").convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
 
             self.image.set_colorkey(VERDE) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
 
-            # Obtiene el rectángulo (sprite) de la imagen del jugador para poder manipularlo
+            # Obtiene el rectángulo (sprite) de la imagen del personaje para poder manipularlo
             self.rect = self.image.get_rect()
 
             # Vamos a utilizar la técnica matemática CIRCULAR BOUNDING BOX para mejorar las colisiones
@@ -71,17 +71,17 @@ def game_thread(queue):
 
             self.rect.center = (400,600) # Podemos colocar el rectángulo en la posición inicial que queramos
 
-            # Velocidad del personaje (inicial), inicialmente el jugador va a estar quieto
+            # Velocidad del personaje (inicial), inicialmente el personaje va a estar quieto
             self.velocidad_x = 0 
             self.velocidad_y = 0
 
-            # Barra de vida
-            self.hp = 100
+            # Barra de salud
+            self.salud = 100
 
             # Añadimos vidas
             self.vidas = 3
 
-            # A qué dirección está apuntando actualmente el jugador
+            # A qué dirección está apuntando actualmente el personaje
             self.direccionApuntado = "derecha" # Inicialmente siempre apunta a la derecha
 
         def update(self):
@@ -95,7 +95,7 @@ def game_thread(queue):
             self.rect.y += self.velocidad_y
 
             # Limita el margen izquierdo
-            if self.rect.left < 0: # Cada vez que toque el borde izquierdo e intente salir de la pantalla 
+            if self.rect.left < 0: # Cada vez que toque el borde izquierdo e intente salir de la screen 
                 self.rect.left = 0 # Se ajusta el personaje al borde izquierdo
 
             # Limita el margen derecho
@@ -198,15 +198,15 @@ def game_thread(queue):
             if nivel == 1:
                 self.rutaImagen = "../Imagenes/Enemigo1.png"
                 self.rutaImagenGirada = "../Imagenes/Enemigo1Girado.png"
-                self.hp = 15 # Barra de vida
+                self.salud = 15 # Barra de vida
             elif nivel == 2:
                 self.rutaImagen = "../Imagenes/Enemigo2.png"
                 self.rutaImagenGirada = "../Imagenes/Enemigo2Girado.png"
-                self.hp = 30 # Barra de vida
+                self.salud = 30 # Barra de vida
             elif nivel == 3:
                 self.rutaImagen = "../Imagenes/Enemigo3.png"
                 self.rutaImagenGirada = "../Imagenes/Enemigo3Girado.png"
-                self.hp = 45 # Barra de vida
+                self.salud = 45 # Barra de vida
 
             # Rectángulo (enemigo), recordemos que las imágenes en Pygame son rectángulos
             self.image = pygame.transform.scale(pygame.image.load(self.rutaImagen).convert(), (79, 117)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
@@ -216,14 +216,14 @@ def game_thread(queue):
 
             self.image.set_colorkey(colorFondo) # Con esta función podemos eliminar el color indicado por parámetro de la imagen+
 
-            # Obtiene el rectángulo (sprite) de la imagen del jugador para poder manipularlo
+            # Obtiene el rectángulo (sprite) de la imagen del personaje para poder manipularlo
             self.rect = self.image.get_rect()
 
             # Vamos a utilizar la técnica matemática CIRCULAR BOUNDING BOX para mejorar las colisiones
             self.radius = 35 # Establecemos el radio
 
             # Hacemos que el enemigo aparezca de forma aleatoria de la mitad hacia arriba de la ventana de pygame
-            self.rect.x = random.randrange(ANCHO - self.rect.width) # Con esto vamos a poner como coordenada X del sprite un número aleatorio entre todos los píxeles del ancho de la pantalla y además controlamos que no se coloque fuera de los márgenes de la pantalla ya que tendrá en cuenta el ancho del propio rectángulo
+            self.rect.x = random.randrange(ANCHO - self.rect.width) # Con esto vamos a poner como coordenada X del sprite un número aleatorio entre todos los píxeles del ancho de la screen y además controlamos que no se coloque fuera de los márgenes de la screen ya que tendrá en cuenta el ancho del propio rectángulo
             self.rect.y = random.randrange(ALTO/2 - self.rect.height) # Con esto hacemos lo mismo pero para la coordenada Y, pero limitando a la mitad de la ventana
 
             # Velocidad inicial del enemigo para que se mueva sin que tenga que ocurrir nada antes
@@ -237,7 +237,7 @@ def game_thread(queue):
             self.rect.y += self.velocidad_y
 
             # Limita el margen izquierdo y hacemos que el enemigo rebote
-            if self.rect.left < 0: # Cada vez que toque el borde izquierdo e intente salir de la pantalla 
+            if self.rect.left < 0: # Cada vez que toque el borde izquierdo e intente salir de la screen 
                 self.velocidad_x += 1 # Hacemos que rebote
                 # Modificamos la imagen para reflejar el cambio de orientación
                 self.image = pygame.transform.scale(pygame.image.load(self.rutaImagen).convert(), (79, 117)) # Cargamos la imagen y la redimensionamos a 10px de ancho y 20px de alto
@@ -272,11 +272,11 @@ def game_thread(queue):
         def update(self):
             if self.direccion == "derecha":
                 self.rect.x += 25
-                if self.rect.x > ANCHO: # Cuando la bala salga por la parte derecha de la pantalla
+                if self.rect.x > ANCHO: # Cuando la bala salga por la parte derecha de la screen
                     self.kill() # Elimina dicha bala
             elif self.direccion == "izquierda":
                 self.rect.x -= 25
-                if self.rect.x < 0: # Cuando la bala salga por la parte izquierda de la pantalla
+                if self.rect.x < 0: # Cuando la bala salga por la parte izquierda de la screen
                     self.kill() # Elimina dicha bala
 
     class Virus(pygame.sprite.Sprite):
@@ -298,14 +298,14 @@ def game_thread(queue):
 
             self.image.set_colorkey(ROJO)
             self.rect = self.image.get_rect()
-            self.rect.x = random.randrange(ANCHO - self.rect.width) # Posición inicial en x que van a tomar los virus instanciados evitando que se generen a medio trozo de la pantalla
-            self.rect.y = -self.rect.width # Evitamos que se genere por dentro de la pantalla
+            self.rect.x = random.randrange(ANCHO - self.rect.width) # Posición inicial en x que van a tomar los virus instanciados evitando que se generen a medio trozo de la screen
+            self.rect.y = -self.rect.width # Evitamos que se genere por dentro de la screen
             self.rect.y = 0
             self.velocidad_y = random.randrange(1, 2)
         
         def update(self):
             self.rect.y += self.velocidad_y # Para que vaya el virus hacia abajo
-            if self.rect.top > ALTO: # Si el virus desaparece de la pantalla por debajo, entonces que vuelva a tomar los valores iniciales
+            if self.rect.top > ALTO: # Si el virus desaparece de la screen por debajo, entonces que vuelva a tomar los valores iniciales
                 self.rect.x = random.randrange(ANCHO - self.rect.width)
                 self.rect.y = -self.rect.width
                 # ANCHO
@@ -319,32 +319,32 @@ def game_thread(queue):
             self.image = pygame.transform.scale(pygame.image.load("../Imagenes/Botiquin.png").convert(), (32,32))
             self.radius = 16
             self.rect = self.image.get_rect()
-            self.rect.x = random.randrange(ANCHO - self.rect.width) # Posición inicial en la coordenada "x" que van a tomar los botiquines instanciados evitando que se generen a medio trozo de la pantalla
-            self.rect.y = -self.rect.width # Posicion inicial en la coordenada "y". Evitamos que se genere por dentro de la pantalla
+            self.rect.x = random.randrange(ANCHO - self.rect.width) # Posición inicial en la coordenada "x" que van a tomar los botiquines instanciados evitando que se generen a medio trozo de la screen
+            self.rect.y = -self.rect.width # Posicion inicial en la coordenada "y". Evitamos que se genere por dentro de la screen
             self.velocidad_y = 1
         
         def update(self):
             self.rect.y += self.velocidad_y # Para que vaya el botiquin hacia abajo
-            if self.rect.top > ALTO: # Si el botiquin desaparece de la pantalla por debajo, entonces que vuelva a tomar los valores iniciales
+            if self.rect.top > ALTO: # Si el botiquin desaparece de la screen por debajo, entonces que vuelva a tomar los valores iniciales
                 self.rect.x = random.randrange(ANCHO - self.rect.width)
                 self.rect.y = -self.rect.width
 
-    def barra_hp(pantalla, x, y, hp):
-        largo = 200
-        ancho = 25
-        calculo_barra = int((jugador.hp / 100) * largo) # Calculamos el porcentaje vida respecto a la longitud de la barra
-        borde = pygame.Rect(x, y, largo, ancho) # Creamos un borde para la barra de vida
-        rectangulo = pygame.Rect(x, y, calculo_barra, ancho) # Creamos el rectángulo de la barra de vida
-        pygame.draw.rect(pantalla, VERDE2, borde, 3)
-        pygame.draw.rect(pantalla, VERDE, rectangulo)
+    def show_text(screen, font, text, colour, sizes, x, y): 
+        font_type = pygame.font.Font(font, sizes) # Las dimensiones son el tamaño en px de la fuente
+        surface = font_type.render(text, True, colour) # Creamos una variable para mostrar el texto, el True es si queremos que use antialiasing
+        rectangle = surface.get_rect()
+        rectangle.center = (x,y) # Para poder manipular la posición de dicho rectángulo
+        screen.blit(surface, rectangle) # Para que finalmente se pueda mostrar en la screen
 
+    def barra_salud(screen, x, y, salud):
+        length = 200
+        width = 25
+        calculo_barra = int((salud / 100) * length) # Calculamos el porcentaje vida respecto a la longitud de la barra
+        border = pygame.Rect(x, y, length, width) # Creamos un borde para la barra de vida
+        rectangulo = pygame.Rect(x, y, calculo_barra, width) # Creamos el rectángulo de la barra de vida
+        pygame.draw.rect(screen, VERDE2, border, 3)
+        pygame.draw.rect(screen, VERDE, rectangulo)
 
-    def mostrar_texto(pantalla, fuente, texto, color, dimensiones, x, y): 
-        tipo_letra = pygame.font.Font(fuente, dimensiones) # Las dimensiones son el tamaño en px de la fuente
-        superficie = tipo_letra.render(texto, True, color) # Creamos una variable para mostrar el texto, el True es si queremos que use antialiasing
-        rectangulo = superficie.get_rect()
-        rectangulo.center = (x,y) # Para poder manipular la posición de dicho rectángulo
-        pantalla.blit(superficie, rectangulo) # Para que finalmente se pueda mostrar en la pantalla
 
     mensaje = queue.get() # Esperamos hasta que se inicie la skill
 
@@ -352,7 +352,7 @@ def game_thread(queue):
 
         # Iniciación de Pygame, creación de la ventana, título y control de reloj.
         pygame.init()
-        pantalla = pygame.display.set_mode((ANCHO, ALTO))
+        screen = pygame.display.set_mode((ANCHO, ALTO))
         pygame.display.set_caption("Voz Letal")
         clock = pygame.time.Clock() # Para controlar los FPS
 
@@ -373,8 +373,8 @@ def game_thread(queue):
         spritesVirus = pygame.sprite.Group() 
         spritesBotiquines = pygame.sprite.Group()
 
-        jugador = Jugador()
-        sprites.add(jugador) # Al grupo le añadimos jugador, para que tenga la imagen del jugador
+        personaje = Personaje()
+        sprites.add(personaje) # Al grupo le añadimos personaje, para que tenga la imagen del personaje
 
         fondo = pygame.image.load("../Imagenes/Fondo.png").convert() # Cargamos la imagen de fondo del videojuego
 
@@ -384,7 +384,7 @@ def game_thread(queue):
         ejecutando = True
         while ejecutando:
 
-            pantalla.blit(pygame.transform.scale(fondo, (800,600)), (0,0)) # Para añadir un fondo de nuestra elección usar esta línea
+            screen.blit(pygame.transform.scale(fondo, (800,600)), (0,0)) # Para añadir un fondo de nuestra elección usar esta línea
 
             if queue.qsize() > 0: # Nos aseguramos que la cola tenga elementos antes de intentar obtener uno de ellos
 
@@ -397,7 +397,7 @@ def game_thread(queue):
 
                         bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que hemos perdido la partida o está se ha terminado precipitadamente
 
-                        mostrar_texto(pantalla, times, "GAME OVER", ROJO, 100, 400, 300)
+                        show_text(screen, times, "GAME OVER", ROJO, 100, 400, 300)
 
                         pygame.display.update() 
                         time.sleep(5)
@@ -405,21 +405,21 @@ def game_thread(queue):
 
                     elif mensaje in posibles_movimientos: # Si se nos ha pedido mover el personaje
                         
-                        jugador.ejecutaMovimiento(mensaje)
+                        personaje.ejecutaMovimiento(mensaje)
 
                     elif "dispara" in mensaje:
 
                         if mensaje == "dispara derecha":
-                            jugador.disparo("derecha")
+                            personaje.disparo("derecha")
 
                         elif mensaje == "dispara izquierda":
-                            jugador.disparo("izquierda")
+                            personaje.disparo("izquierda")
                         
                         elif mensaje == "dispara direccion actual":
-                            if jugador.direccionApuntado == "derecha":
-                                jugador.disparo("derecha")
-                            elif jugador.direccionApuntado == "izquierda":
-                                jugador.disparo("izquierda")
+                            if personaje.direccionApuntado == "derecha":
+                                personaje.disparo("derecha")
+                            elif personaje.direccionApuntado == "izquierda":
+                                personaje.disparo("izquierda")
 
             # Es lo que especifica la velocidad del bucle de juego
             clock.tick(FPS)
@@ -430,7 +430,7 @@ def game_thread(queue):
                     ejecutando = False
 
             # Actualización de sprites
-            sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la pantalla
+            sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la screen
             spritesEnemigosNivel1.update()
             spritesEnemigosNivel2.update()
             spritesEnemigosNivel3.update()
@@ -467,46 +467,46 @@ def game_thread(queue):
                 impactoDisparo.play()
                 puntos += 100
 
-            colision_jugador_virus = pygame.sprite.spritecollide(jugador, spritesVirus, True, pygame.sprite.collide_circle)
+            colision_personaje_virus = pygame.sprite.spritecollide(personaje, spritesVirus, True, pygame.sprite.collide_circle)
 
-            if colision_jugador_virus:
+            if colision_personaje_virus:
                 bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que el personaje ha sido herido
                 sonidoHerido.play()
-                jugador.hp -= 50
+                personaje.salud -= 50
                 if puntos >= 0:
                     puntos -= 100
                     if puntos < 0:
                         puntos = 0
                 bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
 
-            colision_jugador_botiquines = pygame.sprite.spritecollide(jugador, spritesBotiquines, True, pygame.sprite.collide_circle)
+            colision_personaje_botiquines = pygame.sprite.spritecollide(personaje, spritesBotiquines, True, pygame.sprite.collide_circle)
 
-            if colision_jugador_botiquines:
+            if colision_personaje_botiquines:
                 bombilla.setColor(120, 100) # Ponemos la bombilla de color verde para indicar la curación
                 sonidoCuracion.play()
-                jugador.hp += 10
-                if jugador.hp > 100:
-                    jugador.hp = 100
+                personaje.salud += 10
+                if personaje.salud > 100:
+                    personaje.salud = 100
                 bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
 
-            colision_jugador_enemigosNivel1 = pygame.sprite.spritecollide(jugador, spritesEnemigosNivel1, True, pygame.sprite.collide_circle) 
-            if colision_jugador_enemigosNivel1:
+            colision_personaje_enemigosNivel1 = pygame.sprite.spritecollide(personaje, spritesEnemigosNivel1, True, pygame.sprite.collide_circle) 
+            if colision_personaje_enemigosNivel1:
                 bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que el personaje ha sido herido
                 sonidoHerido.play()
                 # Podemos añadir una animación de explosión o de contacto
-                jugador.hp -= 15
+                personaje.salud -= 15
                 if puntos >= 0: 
                     puntos -= 50
                     if puntos < 0: # Para evitar que aparezca una puntuación negativa
                         puntos = 0
                 bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
 
-            colision_jugador_enemigosNivel2 = pygame.sprite.spritecollide(jugador, spritesEnemigosNivel2, True, pygame.sprite.collide_circle) 
-            if colision_jugador_enemigosNivel2:
+            colision_personaje_enemigosNivel2 = pygame.sprite.spritecollide(personaje, spritesEnemigosNivel2, True, pygame.sprite.collide_circle) 
+            if colision_personaje_enemigosNivel2:
                 bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que el personaje ha sido herido
                 sonidoHerido.play() 
                 # Podemos añadir una animación de explosión o de contacto
-                jugador.hp -= 25
+                personaje.salud -= 25
                 if puntos >= 0: 
                     puntos -= 100
                     if puntos < 0: # Para evitar que aparezca una puntuación negativa
@@ -514,12 +514,12 @@ def game_thread(queue):
                 bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
 
 
-            colision_jugador_enemigosNivel3 = pygame.sprite.spritecollide(jugador, spritesEnemigosNivel3, True, pygame.sprite.collide_circle) 
-            if colision_jugador_enemigosNivel3:
+            colision_personaje_enemigosNivel3 = pygame.sprite.spritecollide(personaje, spritesEnemigosNivel3, True, pygame.sprite.collide_circle) 
+            if colision_personaje_enemigosNivel3:
                 bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que el personaje ha sido herido
                 sonidoHerido.play() 
                 # Podemos añadir una animación de explosión o de contacto
-                jugador.hp -= 35
+                personaje.salud -= 35
                 if puntos >= 0: 
                     puntos -= 150
                     if puntos < 0: # Para evitar que aparezca una puntuación negativa
@@ -531,9 +531,9 @@ def game_thread(queue):
             if colision_disparos_enemigosNivel1:
                 puntos += 100
                 impactoDisparo.play()
-                enemigoNivel1.hp -= 15
+                enemigoNivel1.salud -= 15
 
-            if enemigoNivel1.hp <= 0:
+            if enemigoNivel1.salud <= 0:
                 enemigoNivel1.kill()
 
             colision_disparos_enemigosNivel2 = pygame.sprite.groupcollide(spritesEnemigosNivel2, spritesBalas, False, True, pygame.sprite.collide_circle)
@@ -541,9 +541,9 @@ def game_thread(queue):
             if colision_disparos_enemigosNivel2:
                 puntos += 150
                 impactoDisparo.play()
-                enemigoNivel2.hp -= 15
+                enemigoNivel2.salud -= 15
 
-            if enemigoNivel2.hp <= 0:
+            if enemigoNivel2.salud <= 0:
                 enemigoNivel2.kill()
             
             colision_disparos_enemigosNivel3 = pygame.sprite.groupcollide(spritesEnemigosNivel3, spritesBalas, False, True, pygame.sprite.collide_circle)
@@ -551,69 +551,69 @@ def game_thread(queue):
             if colision_disparos_enemigosNivel3:
                 puntos += 200
                 impactoDisparo.play()
-                enemigoNivel3.hp -= 15
+                enemigoNivel3.salud -= 15
 
-            if enemigoNivel3.hp <= 0:
+            if enemigoNivel3.salud <= 0:
                 enemigoNivel3.kill()
 
-            # Fondo de pantalla, dibujo de sprites y formas geométricas
-            sprites.draw(pantalla) # Dibujamos los sprites en la pantalla
-            spritesEnemigosNivel1.draw(pantalla)
-            spritesEnemigosNivel2.draw(pantalla)
-            spritesEnemigosNivel3.draw(pantalla)
-            spritesBalas.draw(pantalla)
-            spritesVirus.draw(pantalla)
-            spritesBotiquines.draw(pantalla)
+            # Fondo de screen, dibujo de sprites y formas geométricas
+            sprites.draw(screen) # Dibujamos los sprites en la screen
+            spritesEnemigosNivel1.draw(screen)
+            spritesEnemigosNivel2.draw(screen)
+            spritesEnemigosNivel3.draw(screen)
+            spritesBalas.draw(screen)
+            spritesVirus.draw(screen)
+            spritesBotiquines.draw(screen)
 
-            warning = pygame.image.load("../Imagenes/WarningMini.png").convert()
-            warning.set_colorkey(VERDE)
+            advertencia = pygame.image.load("../Imagenes/WarningMini.png").convert()
+            advertencia.set_colorkey(VERDE)
 
-            pantalla.blit(pygame.transform.scale(jugador.image, (25,25)), (510,15))
-            pantalla.blit(pygame.transform.scale(jugador.image, (25,25)), (475,15))
-            pantalla.blit(pygame.transform.scale(jugador.image, (25,25)), (440,15))
-            cruz = pygame.image.load("../Imagenes/Cruz.png").convert()
-            cruz.set_colorkey(VERDE)
+            screen.blit(pygame.transform.scale(personaje.image, (24,24)), (515,15))
+            screen.blit(pygame.transform.scale(personaje.image, (24,24)), (480,15))
+            screen.blit(pygame.transform.scale(personaje.image, (24,24)), (445,15))
+            cruz_roja = pygame.image.load("../Imagenes/Cruz.png").convert()
+            cruz_roja.set_colorkey(VERDE)
 
-            if jugador.hp < 30:
-                pantalla.blit(pygame.transform.scale(warning, (25,25)), (545,15))
+            if personaje.salud < 30:
+                screen.blit(pygame.transform.scale(advertencia, (24,24)), (545,15))
 
-            if jugador.hp <= 0 and jugador.vidas == 3:
-                jugador.kill() # Eliminamos al jugador de la partida
-                jugador = Jugador() # Y lo respawneamos
-                sprites.add(jugador)
-                jugador.vidas = 2
+            if personaje.salud <= 0 and personaje.vidas == 3:
+                personaje.kill() # Eliminamos al personaje de la partida
+                personaje = Personaje() # Y lo respawneamos
+                sprites.add(personaje)
+                personaje.vidas = 2
 
-            if jugador.vidas == 2:
-                if jugador.hp <= 0:
-                    jugador.kill() # Eliminamos al jugador de la partida
-                    jugador = Jugador() # Y lo respawneamos
-                    sprites.add(jugador)
-                    jugador.vidas = 1
-                pantalla.blit(pygame.transform.scale(cruz, (25,25)), (510,15))
+            if personaje.vidas == 2:
+                if personaje.salud <= 0:
+                    personaje.kill() # Eliminamos al personaje de la partida
+                    personaje = Personaje() # Y lo respawneamos
+                    sprites.add(personaje)
+                    personaje.vidas = 1
+                screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (515,15))
 
-            if jugador.vidas == 1:
-                if jugador.hp <= 0:
-                    jugador.kill() # Eliminamos al jugador de la partida
-                    jugador = Jugador() # Y lo respawneamos
-                    sprites.add(jugador)
-                    jugador.vidas = 0
-                pantalla.blit(pygame.transform.scale(cruz, (25,25)), (510,15))
-                pantalla.blit(pygame.transform.scale(cruz, (25,25)), (475,15))
+            if personaje.vidas == 1:
+                if personaje.salud <= 0:
+                    personaje.kill() # Eliminamos al personaje de la partida
+                    personaje = Personaje() # Y lo respawneamos
+                    sprites.add(personaje)
+                    personaje.vidas = 0
+                screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (515,15))
+                screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (480,15))
 
-            if jugador.vidas == 0:
-                if jugador.hp <= 0:
-                    jugador.kill() # Eliminamos al jugador de la partida
-                    jugador.hp = 0
-                pantalla.blit(pygame.transform.scale(cruz, (25,25)), (510,15))
-                pantalla.blit(pygame.transform.scale(cruz, (25,25)), (475,15))
-                pantalla.blit(pygame.transform.scale(cruz, (25,25)), (440,15))
+            if personaje.vidas == 0:
+                if personaje.salud <= 0:
+                    personaje.kill() # Eliminamos al personaje de la partida
+                    personaje.salud = 0
+                screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (515,15))
+                screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (480,15))
+                screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (445,15))
 
                 peticion_endgame = False
                 while peticion_endgame == False:
 
                     bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que hemos perdido la partida
 
-                    mostrar_texto(pantalla, times, "GAME OVER", ROJO, 100, 400, 300)
+                    show_text(screen, times, "GAME OVER", ROJO, 100, 400, 300)
 
 
                     pygame.display.update()
@@ -631,7 +631,7 @@ def game_thread(queue):
                 peticion_endgame = False
                 while peticion_endgame == False:
 
-                    mostrar_texto(pantalla, times, "HAS GANADO", VERDE, 100, 400, 300)
+                    show_text(screen, times, "HAS GANADO", VERDE, 100, 400, 300)
 
                     pygame.display.update()
 
@@ -640,14 +640,14 @@ def game_thread(queue):
                         peticion_endgame = True
                         ejecutando = False # Indicamos que el bucle de juego va a terminar
 
-            # Dibuja los textos en la pantalla
-            mostrar_texto(pantalla, consolas, str(puntos).zfill(4), ROJO, 40, 680, 60) # Mostramos la puntuación en la pantalla
+            # Dibuja los textos en la screen
+            show_text(screen, consolas, str(puntos).zfill(4), ROJO, 40, 680, 60) # Mostramos la puntuación en la screen
 
-            # Mostramos la barra del jugador actualizada
-            barra_hp(pantalla, 580, 15, jugador.hp)
+            # Mostramos la barra del personaje actualizada
+            barra_salud(screen, 580, 15, personaje.salud)
 
-            # Actualizamos el contenido de la pantalla
-            pygame.display.flip() # Permite que solo una porción de la pantalla se actualice, en lugar de toda el área de la pantalla. Si no se pasan argumentos, se actualizará la superficie completa.
+            # Actualizamos el contenido de la screen
+            pygame.display.flip() # Permite que solo una porción de la screen se actualice, en lugar de toda el área de la screen. Si no se pasan argumentos, se actualizará la superficie completa.
         
         bombilla.setColor(0,0)
         bombilla.turnOff() # Apagamos la bombilla
