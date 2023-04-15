@@ -11,7 +11,7 @@ app = Flask(__name__)
 ask = Ask(app, '/')
 
 # Preparamos la conexión a la bombilla para poder realizar peticiones a esta posteriormente
-bombilla = PyL530.L530("192.168.68.100", "jose_basket96@hotmail.com", ".dF3-1Csep0")
+bombilla = PyL530.L530("192.168.68.100", "jose_basket96@hotmail.com", "jfe52mo2P")
 
 bombilla.handshake() # Creamos las cookies necesarias para más métodos
 bombilla.login() # Se envían las credenciales de inicio de sesión a la bombilla y se crea una clave y un vector de inicialización AES para su uso en métodos posteriores
