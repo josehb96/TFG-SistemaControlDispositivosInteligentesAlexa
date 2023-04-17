@@ -345,308 +345,307 @@ def game_thread(queue):
         pygame.draw.rect(screen, VERDE2, border, 3)
         pygame.draw.rect(screen, VERDE, rectangulo)
 
+    # Iniciación de Pygame, creación de la ventana, título y control de reloj.
+    pygame.init()
+    screen = pygame.display.set_mode((ANCHO, ALTO))
+    pygame.display.set_caption("Voz Letal")
+    clock = pygame.time.Clock() # Para controlar los FPS
 
-    mensaje = queue.get() # Esperamos hasta que se inicie la skill
+    bombilla.turnOn() # Encendemos la bombilla
 
-    if mensaje == 'Init':
+    bombilla.setColor(0, 0)
+    bombilla.setBrightness(50) # Establecemos el brillo de la bombilla al 50%
 
-        # Iniciación de Pygame, creación de la ventana, título y control de reloj.
-        pygame.init()
-        screen = pygame.display.set_mode((ANCHO, ALTO))
-        pygame.display.set_caption("Voz Letal")
-        clock = pygame.time.Clock() # Para controlar los FPS
+    # Sistema de puntuaciones
+    puntos = 0
 
-        bombilla.turnOn() # Encendemos la bombilla
+    # Grupo de sprites
+    sprites = pygame.sprite.Group() # Se agrupan los sprites para que trabajen en un conjunto y se almacene en la variable que queramos
+    spritesEnemigosNivel1 = pygame.sprite.Group() # Como vamos a utilizar las colisiones necesitamos tener un grupo dedicado a los enemigos
+    spritesEnemigosNivel2 = pygame.sprite.Group() # Como vamos a utilizar las colisiones necesitamos tener un grupo dedicado a los enemigos
+    spritesEnemigosNivel3 = pygame.sprite.Group() # Como vamos a utilizar las colisiones necesitamos tener un grupo dedicado a los enemigos
+    spritesBalas = pygame.sprite.Group()
+    spritesVirus = pygame.sprite.Group() 
+    spritesBotiquines = pygame.sprite.Group()
 
-        bombilla.setColor(0, 0)
-        bombilla.setBrightness(50) # Establecemos el brillo de la bombilla al 50%
+    personaje = Personaje()
+    sprites.add(personaje) # Al grupo le añadimos personaje, para que tenga la imagen del personaje
 
-        # Sistema de puntuaciones
-        puntos = 0
+    fondo = pygame.image.load("../Imagenes/Fondo.png").convert() # Cargamos la imagen de fondo del videojuego
 
-        # Grupo de sprites
-        sprites = pygame.sprite.Group() # Se agrupan los sprites para que trabajen en un conjunto y se almacene en la variable que queramos
-        spritesEnemigosNivel1 = pygame.sprite.Group() # Como vamos a utilizar las colisiones necesitamos tener un grupo dedicado a los enemigos
-        spritesEnemigosNivel2 = pygame.sprite.Group() # Como vamos a utilizar las colisiones necesitamos tener un grupo dedicado a los enemigos
-        spritesEnemigosNivel3 = pygame.sprite.Group() # Como vamos a utilizar las colisiones necesitamos tener un grupo dedicado a los enemigos
-        spritesBalas = pygame.sprite.Group()
-        spritesVirus = pygame.sprite.Group() 
-        spritesBotiquines = pygame.sprite.Group()
+    posibles_movimientos = ["arriba", "abajo", "izquierda", "derecha", "abajo derecha", "abajo izquierda", "arriba derecha", "arriba izquierda"]
 
-        personaje = Personaje()
-        sprites.add(personaje) # Al grupo le añadimos personaje, para que tenga la imagen del personaje
+    # Bucle de juego
+    ejecutando = True
+    while ejecutando:
 
-        fondo = pygame.image.load("../Imagenes/Fondo.png").convert() # Cargamos la imagen de fondo del videojuego
+        screen.blit(pygame.transform.scale(fondo, (800,600)), (0,0)) # Para añadir un fondo de nuestra elección usar esta línea
 
-        posibles_movimientos = ["arriba", "abajo", "izquierda", "derecha", "abajo derecha", "abajo izquierda", "arriba derecha", "arriba izquierda"]
+        if queue.qsize() > 0: # Nos aseguramos que la cola tenga elementos antes de intentar obtener uno de ellos
 
-        # Bucle de juego
-        ejecutando = True
-        while ejecutando:
+            mensaje = queue.get_nowait()
 
-            screen.blit(pygame.transform.scale(fondo, (800,600)), (0,0)) # Para añadir un fondo de nuestra elección usar esta línea
+            # Si recibimos un mensaje de texto
+            if isinstance(mensaje, str):
 
-            if queue.qsize() > 0: # Nos aseguramos que la cola tenga elementos antes de intentar obtener uno de ellos
+                if mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que termine la ejecución del juego
 
-                mensaje = queue.get_nowait()
-
-                # Si recibimos un mensaje de texto
-                if isinstance(mensaje, str):
-
-                    if mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que termine la ejecución del juego
-
-                        bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que hemos perdido la partida o está se ha terminado precipitadamente
-
-                        show_text(screen, times, "GAME OVER", ROJO, 100, 400, 300)
-
-                        pygame.display.update() 
-                        time.sleep(5)
-                        ejecutando = False # Indicamos que el bucle de juego va a terminar
-
-                    elif mensaje in posibles_movimientos: # Si se nos ha pedido mover el personaje
-                        
-                        personaje.ejecutaMovimiento(mensaje)
-
-                    elif "dispara" in mensaje:
-
-                        if mensaje == "dispara derecha":
-                            personaje.disparo("derecha")
-
-                        elif mensaje == "dispara izquierda":
-                            personaje.disparo("izquierda")
-                        
-                        elif mensaje == "dispara direccion actual":
-                            if personaje.direccionApuntado == "derecha":
-                                personaje.disparo("derecha")
-                            elif personaje.direccionApuntado == "izquierda":
-                                personaje.disparo("izquierda")
-
-            # Es lo que especifica la velocidad del bucle de juego
-            clock.tick(FPS)
-
-            # Actualización de sprites
-            sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la screen
-            spritesEnemigosNivel1.update()
-            spritesEnemigosNivel2.update()
-            spritesEnemigosNivel3.update()
-            spritesBalas.update()
-            spritesVirus.update()
-            spritesBotiquines.update()
-
-            # Instanciación de los virus
-            if not spritesVirus:
-                for x in range(2):
-                    virus = Virus()
-                    spritesVirus.add(virus)
-
-            # Instanciación de los botiquines
-            if not spritesBotiquines:
-                botiquin = Botiquin()
-                spritesBotiquines.add(botiquin)
-
-            # ESTO ES PARA HACER PRUEBAS PARA QUE EL JUEGO NO SE QUEDE VACÍO AL ACABAR CON TODOS LOS ENEMIGOS
-            if not spritesEnemigosNivel1 and not spritesEnemigosNivel2 and not spritesEnemigosNivel3:
-
-                enemigoNivel1 = Enemigo(AZUL, 1)
-                spritesEnemigosNivel1.add(enemigoNivel1)
-
-                enemigoNivel2 = Enemigo(VERDE, 2)
-                spritesEnemigosNivel2.add(enemigoNivel2)
-
-                enemigoNivel3 = Enemigo(VERDE, 3)
-                spritesEnemigosNivel3.add(enemigoNivel3)
-
-            colision_disparos_virus = pygame.sprite.groupcollide(spritesVirus, spritesBalas, True, True, pygame.sprite.collide_circle)
-
-            if colision_disparos_virus:
-                impactoDisparo.play()
-                puntos += 100
-
-            colision_personaje_virus = pygame.sprite.spritecollide(personaje, spritesVirus, True, pygame.sprite.collide_circle)
-
-            if colision_personaje_virus:
-                bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que el personaje ha sido herido
-                sonidoHerido.play()
-                personaje.salud -= 50
-                if puntos >= 0:
-                    puntos -= 100
-                    if puntos < 0:
-                        puntos = 0
-                bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
-
-            colision_personaje_botiquines = pygame.sprite.spritecollide(personaje, spritesBotiquines, True, pygame.sprite.collide_circle)
-
-            if colision_personaje_botiquines:
-                bombilla.setColor(120, 100) # Ponemos la bombilla de color verde para indicar la curación
-                sonidoCuracion.play()
-                personaje.salud += 10
-                if personaje.salud > 100:
-                    personaje.salud = 100
-                bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
-
-            colision_personaje_enemigosNivel1 = pygame.sprite.spritecollide(personaje, spritesEnemigosNivel1, True, pygame.sprite.collide_circle) 
-            if colision_personaje_enemigosNivel1:
-                bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que el personaje ha sido herido
-                sonidoHerido.play()
-                # Podemos añadir una animación de explosión o de contacto
-                personaje.salud -= 15
-                if puntos >= 0: 
-                    puntos -= 50
-                    if puntos < 0: # Para evitar que aparezca una puntuación negativa
-                        puntos = 0
-                bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
-
-            colision_personaje_enemigosNivel2 = pygame.sprite.spritecollide(personaje, spritesEnemigosNivel2, True, pygame.sprite.collide_circle) 
-            if colision_personaje_enemigosNivel2:
-                bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que el personaje ha sido herido
-                sonidoHerido.play() 
-                # Podemos añadir una animación de explosión o de contacto
-                personaje.salud -= 25
-                if puntos >= 0: 
-                    puntos -= 100
-                    if puntos < 0: # Para evitar que aparezca una puntuación negativa
-                        puntos = 0
-                bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
-
-
-            colision_personaje_enemigosNivel3 = pygame.sprite.spritecollide(personaje, spritesEnemigosNivel3, True, pygame.sprite.collide_circle) 
-            if colision_personaje_enemigosNivel3:
-                bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que el personaje ha sido herido
-                sonidoHerido.play() 
-                # Podemos añadir una animación de explosión o de contacto
-                personaje.salud -= 35
-                if puntos >= 0: 
-                    puntos -= 150
-                    if puntos < 0: # Para evitar que aparezca una puntuación negativa
-                        puntos = 0
-                bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
-
-            colision_disparos_enemigosNivel1 = pygame.sprite.groupcollide(spritesEnemigosNivel1, spritesBalas, False, True, pygame.sprite.collide_circle) 
-            
-            if colision_disparos_enemigosNivel1:
-                puntos += 100
-                impactoDisparo.play()
-                enemigoNivel1.salud -= 15
-
-            if enemigoNivel1.salud <= 0:
-                enemigoNivel1.kill()
-
-            colision_disparos_enemigosNivel2 = pygame.sprite.groupcollide(spritesEnemigosNivel2, spritesBalas, False, True, pygame.sprite.collide_circle)
-
-            if colision_disparos_enemigosNivel2:
-                puntos += 150
-                impactoDisparo.play()
-                enemigoNivel2.salud -= 15
-
-            if enemigoNivel2.salud <= 0:
-                enemigoNivel2.kill()
-            
-            colision_disparos_enemigosNivel3 = pygame.sprite.groupcollide(spritesEnemigosNivel3, spritesBalas, False, True, pygame.sprite.collide_circle)
-            
-            if colision_disparos_enemigosNivel3:
-                puntos += 200
-                impactoDisparo.play()
-                enemigoNivel3.salud -= 15
-
-            if enemigoNivel3.salud <= 0:
-                enemigoNivel3.kill()
-
-            # Fondo de screen, dibujo de sprites y formas geométricas
-            sprites.draw(screen) # Dibujamos los sprites en la screen
-            spritesEnemigosNivel1.draw(screen)
-            spritesEnemigosNivel2.draw(screen)
-            spritesEnemigosNivel3.draw(screen)
-            spritesBalas.draw(screen)
-            spritesVirus.draw(screen)
-            spritesBotiquines.draw(screen)
-
-            advertencia = pygame.image.load("../Imagenes/WarningMini.png").convert()
-            advertencia.set_colorkey(VERDE)
-
-            screen.blit(pygame.transform.scale(personaje.image, (24,24)), (515,15))
-            screen.blit(pygame.transform.scale(personaje.image, (24,24)), (480,15))
-            screen.blit(pygame.transform.scale(personaje.image, (24,24)), (445,15))
-            cruz_roja = pygame.image.load("../Imagenes/Cruz.png").convert()
-            cruz_roja.set_colorkey(VERDE)
-
-            if personaje.salud < 30:
-                screen.blit(pygame.transform.scale(advertencia, (24,24)), (545,15))
-
-            if personaje.salud <= 0 and personaje.vidas == 3:
-                personaje.kill() # Eliminamos al personaje de la partida
-                personaje = Personaje() # Y lo respawneamos
-                sprites.add(personaje)
-                personaje.vidas = 2
-
-            if personaje.vidas == 2:
-                if personaje.salud <= 0:
-                    personaje.kill() # Eliminamos al personaje de la partida
-                    personaje = Personaje() # Y lo respawneamos
-                    sprites.add(personaje)
-                    personaje.vidas = 1
-                screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (515,15))
-
-            if personaje.vidas == 1:
-                if personaje.salud <= 0:
-                    personaje.kill() # Eliminamos al personaje de la partida
-                    personaje = Personaje() # Y lo respawneamos
-                    sprites.add(personaje)
-                    personaje.vidas = 0
-                screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (515,15))
-                screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (480,15))
-
-            if personaje.vidas == 0:
-                if personaje.salud <= 0:
-                    personaje.kill() # Eliminamos al personaje de la partida
-                    personaje.salud = 0
-                screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (515,15))
-                screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (480,15))
-                screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (445,15))
-
-                peticion_endgame = False
-                while peticion_endgame == False:
-
-                    bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que hemos perdido la partida
+                    bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que hemos perdido la partida o está se ha terminado precipitadamente
 
                     show_text(screen, times, "GAME OVER", ROJO, 100, 400, 300)
 
+                    pygame.display.update() 
+                    time.sleep(5)
+                    ejecutando = False # Indicamos que el bucle de juego va a terminar
 
-                    pygame.display.update()
+                elif mensaje in posibles_movimientos: # Si se nos ha pedido mover el personaje
+                    
+                    personaje.ejecutaMovimiento(mensaje)
 
-                    mensaje = queue.get() # Bloqueamos el hilo de ejecución a la espera de la solicitud de fin del juego
-                    if mensaje == 'Endgame':
-                        peticion_endgame = True
-                        ejecutando = False # Indicamos que el bucle de juego va a terminar
+                elif "dispara" in mensaje:
 
-            # Si se alcanza una puntuación de 1000 se gana la partida
-            if puntos >= 1000:
-                
-                bombilla.setColor(120, 100) # Ponemos la bombilla de color verde para indicar que hemos ganado la partida
+                    if mensaje == "dispara derecha":
+                        personaje.disparo("derecha")
 
-                peticion_endgame = False
-                while peticion_endgame == False:
+                    elif mensaje == "dispara izquierda":
+                        personaje.disparo("izquierda")
+                    
+                    elif mensaje == "dispara direccion actual":
+                        if personaje.direccionApuntado == "derecha":
+                            personaje.disparo("derecha")
+                        elif personaje.direccionApuntado == "izquierda":
+                            personaje.disparo("izquierda")
 
-                    show_text(screen, times, "HAS GANADO", VERDE, 100, 400, 300)
+        # Es lo que especifica la velocidad del bucle de juego
+        clock.tick(FPS)
 
-                    pygame.display.update()
+        for event in pygame.event.get(): # Obtenemos una lista de todos los eventos en la cola de eventos de Pygame, que incluyen eventos del teclado, del mouse, de la ventana, etc.
+            if event.type == pygame.QUIT: # Si el evento es de tipo `QUIT` indica que el usuario ha hecho clic en el botón "X" para cerrar la ventana.
+                ejecutando = False
 
-                    mensaje = queue.get() # Bloqueamos el hilo de ejecución a la espera de la solicitud de fin del juego
-                    if mensaje == 'Endgame':
-                        peticion_endgame = True
-                        ejecutando = False # Indicamos que el bucle de juego va a terminar
+        # Actualización de sprites
+        sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la screen
+        spritesEnemigosNivel1.update()
+        spritesEnemigosNivel2.update()
+        spritesEnemigosNivel3.update()
+        spritesBalas.update()
+        spritesVirus.update()
+        spritesBotiquines.update()
 
-            # Dibuja los textos en la screen
-            show_text(screen, consolas, str(puntos).zfill(4), ROJO, 40, 680, 60) # Mostramos la puntuación en la screen
+        # Instanciación de los virus
+        if not spritesVirus:
+            for x in range(2):
+                virus = Virus()
+                spritesVirus.add(virus)
 
-            # Mostramos la barra del personaje actualizada
-            barra_salud(screen, 580, 15, personaje.salud)
+        # Instanciación de los botiquines
+        if not spritesBotiquines:
+            botiquin = Botiquin()
+            spritesBotiquines.add(botiquin)
 
-            # Actualizamos el contenido de la screen
-            pygame.display.flip() # Permite que solo una porción de la screen se actualice, en lugar de toda el área de la screen. Si no se pasan argumentos, se actualizará la superficie completa.
+        # ESTO ES PARA HACER PRUEBAS PARA QUE EL JUEGO NO SE QUEDE VACÍO AL ACABAR CON TODOS LOS ENEMIGOS
+        if not spritesEnemigosNivel1 and not spritesEnemigosNivel2 and not spritesEnemigosNivel3:
+
+            enemigoNivel1 = Enemigo(AZUL, 1)
+            spritesEnemigosNivel1.add(enemigoNivel1)
+
+            enemigoNivel2 = Enemigo(VERDE, 2)
+            spritesEnemigosNivel2.add(enemigoNivel2)
+
+            enemigoNivel3 = Enemigo(VERDE, 3)
+            spritesEnemigosNivel3.add(enemigoNivel3)
+
+        colision_disparos_virus = pygame.sprite.groupcollide(spritesVirus, spritesBalas, True, True, pygame.sprite.collide_circle)
+
+        if colision_disparos_virus:
+            impactoDisparo.play()
+            puntos += 100
+
+        colision_personaje_virus = pygame.sprite.spritecollide(personaje, spritesVirus, True, pygame.sprite.collide_circle)
+
+        if colision_personaje_virus:
+            bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que el personaje ha sido herido
+            sonidoHerido.play()
+            personaje.salud -= 50
+            if puntos >= 0:
+                puntos -= 100
+                if puntos < 0:
+                    puntos = 0
+            bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
+
+        colision_personaje_botiquines = pygame.sprite.spritecollide(personaje, spritesBotiquines, True, pygame.sprite.collide_circle)
+
+        if colision_personaje_botiquines:
+            bombilla.setColor(120, 100) # Ponemos la bombilla de color verde para indicar la curación
+            sonidoCuracion.play()
+            personaje.salud += 10
+            if personaje.salud > 100:
+                personaje.salud = 100
+            bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
+
+        colision_personaje_enemigosNivel1 = pygame.sprite.spritecollide(personaje, spritesEnemigosNivel1, True, pygame.sprite.collide_circle) 
+        if colision_personaje_enemigosNivel1:
+            bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que el personaje ha sido herido
+            sonidoHerido.play()
+            # Podemos añadir una animación de explosión o de contacto
+            personaje.salud -= 15
+            if puntos >= 0: 
+                puntos -= 50
+                if puntos < 0: # Para evitar que aparezca una puntuación negativa
+                    puntos = 0
+            bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
+
+        colision_personaje_enemigosNivel2 = pygame.sprite.spritecollide(personaje, spritesEnemigosNivel2, True, pygame.sprite.collide_circle) 
+        if colision_personaje_enemigosNivel2:
+            bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que el personaje ha sido herido
+            sonidoHerido.play() 
+            # Podemos añadir una animación de explosión o de contacto
+            personaje.salud -= 25
+            if puntos >= 0: 
+                puntos -= 100
+                if puntos < 0: # Para evitar que aparezca una puntuación negativa
+                    puntos = 0
+            bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
+
+
+        colision_personaje_enemigosNivel3 = pygame.sprite.spritecollide(personaje, spritesEnemigosNivel3, True, pygame.sprite.collide_circle) 
+        if colision_personaje_enemigosNivel3:
+            bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que el personaje ha sido herido
+            sonidoHerido.play() 
+            # Podemos añadir una animación de explosión o de contacto
+            personaje.salud -= 35
+            if puntos >= 0: 
+                puntos -= 150
+                if puntos < 0: # Para evitar que aparezca una puntuación negativa
+                    puntos = 0
+            bombilla.setColor(0, 0) # Volvemos al color blanco por defecto de la partida
+
+        colision_disparos_enemigosNivel1 = pygame.sprite.groupcollide(spritesEnemigosNivel1, spritesBalas, False, True, pygame.sprite.collide_circle) 
         
-        bombilla.setColor(0,0)
-        bombilla.turnOff() # Apagamos la bombilla
-        pygame.quit()
+        if colision_disparos_enemigosNivel1:
+            puntos += 100
+            impactoDisparo.play()
+            enemigoNivel1.salud -= 15
+
+        if enemigoNivel1.salud <= 0:
+            enemigoNivel1.kill()
+
+        colision_disparos_enemigosNivel2 = pygame.sprite.groupcollide(spritesEnemigosNivel2, spritesBalas, False, True, pygame.sprite.collide_circle)
+
+        if colision_disparos_enemigosNivel2:
+            puntos += 150
+            impactoDisparo.play()
+            enemigoNivel2.salud -= 15
+
+        if enemigoNivel2.salud <= 0:
+            enemigoNivel2.kill()
+        
+        colision_disparos_enemigosNivel3 = pygame.sprite.groupcollide(spritesEnemigosNivel3, spritesBalas, False, True, pygame.sprite.collide_circle)
+        
+        if colision_disparos_enemigosNivel3:
+            puntos += 200
+            impactoDisparo.play()
+            enemigoNivel3.salud -= 15
+
+        if enemigoNivel3.salud <= 0:
+            enemigoNivel3.kill()
+
+        # Fondo de screen, dibujo de sprites y formas geométricas
+        sprites.draw(screen) # Dibujamos los sprites en la screen
+        spritesEnemigosNivel1.draw(screen)
+        spritesEnemigosNivel2.draw(screen)
+        spritesEnemigosNivel3.draw(screen)
+        spritesBalas.draw(screen)
+        spritesVirus.draw(screen)
+        spritesBotiquines.draw(screen)
+
+        advertencia = pygame.image.load("../Imagenes/WarningMini.png").convert()
+        advertencia.set_colorkey(VERDE)
+
+        screen.blit(pygame.transform.scale(personaje.image, (24,24)), (515,15))
+        screen.blit(pygame.transform.scale(personaje.image, (24,24)), (480,15))
+        screen.blit(pygame.transform.scale(personaje.image, (24,24)), (445,15))
+        cruz_roja = pygame.image.load("../Imagenes/Cruz.png").convert()
+        cruz_roja.set_colorkey(VERDE)
+
+        if personaje.salud < 30:
+            screen.blit(pygame.transform.scale(advertencia, (24,24)), (545,15))
+
+        if personaje.salud <= 0 and personaje.vidas == 3:
+            personaje.kill() # Eliminamos al personaje de la partida
+            personaje = Personaje() # Y lo respawneamos
+            sprites.add(personaje)
+            personaje.vidas = 2
+
+        if personaje.vidas == 2:
+            if personaje.salud <= 0:
+                personaje.kill() # Eliminamos al personaje de la partida
+                personaje = Personaje() # Y lo respawneamos
+                sprites.add(personaje)
+                personaje.vidas = 1
+            screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (515,15))
+
+        if personaje.vidas == 1:
+            if personaje.salud <= 0:
+                personaje.kill() # Eliminamos al personaje de la partida
+                personaje = Personaje() # Y lo respawneamos
+                sprites.add(personaje)
+                personaje.vidas = 0
+            screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (515,15))
+            screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (480,15))
+
+        if personaje.vidas == 0:
+            if personaje.salud <= 0:
+                personaje.kill() # Eliminamos al personaje de la partida
+                personaje.salud = 0
+            screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (515,15))
+            screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (480,15))
+            screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (445,15))
+
+            peticion_endgame = False
+            while peticion_endgame == False:
+
+                bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que hemos perdido la partida
+
+                show_text(screen, times, "GAME OVER", ROJO, 100, 400, 300)
+
+
+                pygame.display.update()
+
+                mensaje = queue.get() # Bloqueamos el hilo de ejecución a la espera de la solicitud de fin del juego
+                if mensaje == 'Endgame':
+                    peticion_endgame = True
+                    ejecutando = False # Indicamos que el bucle de juego va a terminar
+
+        # Si se alcanza una puntuación de 1000 se gana la partida
+        if puntos >= 1000:
+            
+            bombilla.setColor(120, 100) # Ponemos la bombilla de color verde para indicar que hemos ganado la partida
+
+            peticion_endgame = False
+            while peticion_endgame == False:
+
+                show_text(screen, times, "HAS GANADO", VERDE, 100, 400, 300)
+
+                pygame.display.update()
+
+                mensaje = queue.get() # Bloqueamos el hilo de ejecución a la espera de la solicitud de fin del juego
+                if mensaje == 'Endgame':
+                    peticion_endgame = True
+                    ejecutando = False # Indicamos que el bucle de juego va a terminar
+
+        # Dibuja los textos en la screen
+        show_text(screen, consolas, str(puntos).zfill(4), ROJO, 40, 680, 60) # Mostramos la puntuación en la screen
+
+        # Mostramos la barra del personaje actualizada
+        barra_salud(screen, 580, 15, personaje.salud)
+
+        # Actualizamos el contenido de la screen
+        pygame.display.flip() # Permite que solo una porción de la screen se actualice, en lugar de toda el área de la screen. Si no se pasan argumentos, se actualizará la superficie completa.
+    
+    bombilla.setColor(0,0)
+    bombilla.turnOff() # Apagamos la bombilla
+    pygame.quit()
 
 @ask.launch # Para cuando el usuario lanza la skill
 def start_skill():
@@ -654,7 +653,6 @@ def start_skill():
     pygame_thread = Thread(target=game_thread, args=(queue,))
     pygame_thread.start()
     # Indicamos a pygame que inicie el videojuego
-    queue.put('Init')
     return question('Bienvenido a Voz Letal. ¿Deseas moverte o disparar?') \
         .reprompt("Dígame a dónde quiere moverse o disparar.")
 
