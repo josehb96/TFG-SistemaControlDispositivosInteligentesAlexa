@@ -424,11 +424,6 @@ def game_thread(queue):
             # Es lo que especifica la velocidad del bucle de juego
             clock.tick(FPS)
 
-            # Eventos
-            for event in pygame.event.get(): # Obtenemos una lista de todos los eventos en la cola de eventos de Pygame, que incluyen eventos del teclado, del mouse, de la ventana, etc.
-                if event.type == pygame.QUIT: # Si el evento es de tipo `QUIT` indica que el usuario ha hecho clic en el botón "X" para cerrar la ventana.
-                    ejecutando = False
-
             # Actualización de sprites
             sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la screen
             spritesEnemigosNivel1.update()
