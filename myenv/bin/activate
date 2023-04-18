@@ -64,3 +64,7 @@ fi
 if [ -n "${BASH:-}" -o -n "${ZSH_VERSION:-}" ] ; then
     hash -r 2> /dev/null
 fi
+
+# Credenciales de la bombilla TAPO
+export TAPOL530_EMAIL="jose_basket96@hotmail.com"
+export TAPOL530_PASSWORD="jfe52mo2P"

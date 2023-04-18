@@ -6,12 +6,17 @@ from threading import Thread
 import time 
 import random
 from PyP100 import PyL530 # Librería para poder controlar la bombilla
+import os
 
 app = Flask(__name__)
 ask = Ask(app, '/')
 
+# Obtenemos las credenciales de la cuenta de la app de TAPO desde variables de entorno
+email = os.getenv('TAPOL530_EMAIL')
+password = os.getenv('TAPOL530_PASSWORD')
+
 # Preparamos la conexión a la bombilla para poder realizar peticiones a esta posteriormente
-bombilla = PyL530.L530("192.168.68.100", "jose_basket96@hotmail.com", "jfe52mo2P")
+bombilla = PyL530.L530("192.168.68.100", email, password)
 
 bombilla.handshake() # Creamos las cookies necesarias para más métodos
 bombilla.login() # Se envían las credenciales de inicio de sesión a la bombilla y se crea una clave y un vector de inicialización AES para su uso en métodos posteriores
