@@ -383,10 +383,13 @@ def game_thread(queue):
     # Bucle de juego
     ejecutando = True
     while ejecutando:
+        for event in pygame.event.get(): # Obtenemos una lista de todos los eventos en la cola de eventos de Pygame, que incluyen eventos del teclado, del mouse, de la ventana, etc.
+            if event.type == pygame.QUIT: # Si el evento es de tipo `QUIT` indica que el usuario ha hecho clic en el botón "X" para cerrar la ventana.
+                ejecutando = False
 
-        screen.blit(pygame.transform.scale(fondo, (800,600)), (0,0)) # Para añadir un fondo de nuestra elección usar esta línea
+        screen.blit(fondo, (0,0)) # Para añadir un fondo de nuestra elección usar esta línea
 
-        if queue.qsize() > 0: # Nos aseguramos que la cola tenga elementos antes de intentar obtener uno de ellos
+        if not queue.empty(): # Si la cola no está vacía
 
             mensaje = queue.get_nowait()
 
@@ -417,10 +420,6 @@ def game_thread(queue):
 
         # Es lo que especifica la velocidad del bucle de juego
         clock.tick(FPS)
-
-        '''for event in pygame.event.get(): # Obtenemos una lista de todos los eventos en la cola de eventos de Pygame, que incluyen eventos del teclado, del mouse, de la ventana, etc.
-            if event.type == pygame.QUIT: # Si el evento es de tipo `QUIT` indica que el usuario ha hecho clic en el botón "X" para cerrar la ventana.
-                ejecutando = False'''
 
         # Actualización de sprites
         sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la screen
