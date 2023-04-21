@@ -390,43 +390,37 @@ def game_thread(queue):
 
             mensaje = queue.get_nowait()
 
-            # Si recibimos un mensaje de texto
-            if isinstance(mensaje, str):
+            if mensaje in posibles_movimientos: # Si se nos ha pedido mover el personaje
+                
+                personaje.ejecutaMovimiento(mensaje)
 
-                if mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que termine la ejecución del juego
+            elif "dispara" in mensaje:
 
-                    bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que hemos perdido la partida o está se ha terminado precipitadamente
+                if mensaje == "dispara derecha":
+                    personaje.disparo("derecha")
 
-                    show_text(screen, times, "GAME OVER", ROJO, 100, 400, 300)
+                elif mensaje == "dispara izquierda":
+                    personaje.disparo("izquierda")
+                
+                else:
+                    personaje.disparo(personaje.direccionApuntado)
 
-                    pygame.display.update() 
-                    time.sleep(5)
-                    ejecutando = False # Indicamos que el bucle de juego va a terminar
+            elif mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que termine la ejecución del juego
 
-                elif mensaje in posibles_movimientos: # Si se nos ha pedido mover el personaje
-                    
-                    personaje.ejecutaMovimiento(mensaje)
+                bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que hemos perdido la partida o está se ha terminado precipitadamente
 
-                elif "dispara" in mensaje:
+                show_text(screen, times, "GAME OVER", ROJO, 100, 400, 300)
 
-                    if mensaje == "dispara derecha":
-                        personaje.disparo("derecha")
-
-                    elif mensaje == "dispara izquierda":
-                        personaje.disparo("izquierda")
-                    
-                    elif mensaje == "dispara direccion actual":
-                        if personaje.direccionApuntado == "derecha":
-                            personaje.disparo("derecha")
-                        elif personaje.direccionApuntado == "izquierda":
-                            personaje.disparo("izquierda")
+                pygame.display.update() 
+                time.sleep(5)
+                ejecutando = False # Indicamos que el bucle de juego va a terminar
 
         # Es lo que especifica la velocidad del bucle de juego
         clock.tick(FPS)
 
-        for event in pygame.event.get(): # Obtenemos una lista de todos los eventos en la cola de eventos de Pygame, que incluyen eventos del teclado, del mouse, de la ventana, etc.
+        '''for event in pygame.event.get(): # Obtenemos una lista de todos los eventos en la cola de eventos de Pygame, que incluyen eventos del teclado, del mouse, de la ventana, etc.
             if event.type == pygame.QUIT: # Si el evento es de tipo `QUIT` indica que el usuario ha hecho clic en el botón "X" para cerrar la ventana.
-                ejecutando = False
+                ejecutando = False'''
 
         # Actualización de sprites
         sprites.update() # Con esto podemos hacer que todos los sprites (imágenes) se vayan actualizando en la screen
@@ -582,7 +576,7 @@ def game_thread(queue):
             sprites.add(personaje)
             personaje.vidas = 2
 
-        if personaje.vidas == 2:
+        elif personaje.vidas == 2:
             if personaje.salud <= 0:
                 personaje.kill() # Eliminamos al personaje de la partida
                 personaje = Personaje() # Y lo respawneamos
@@ -590,7 +584,7 @@ def game_thread(queue):
                 personaje.vidas = 1
             screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (515,15))
 
-        if personaje.vidas == 1:
+        elif personaje.vidas == 1:
             if personaje.salud <= 0:
                 personaje.kill() # Eliminamos al personaje de la partida
                 personaje = Personaje() # Y lo respawneamos
@@ -599,7 +593,7 @@ def game_thread(queue):
             screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (515,15))
             screen.blit(pygame.transform.scale(cruz_roja, (24,24)), (480,15))
 
-        if personaje.vidas == 0:
+        elif personaje.vidas == 0:
             if personaje.salud <= 0:
                 personaje.kill() # Eliminamos al personaje de la partida
                 personaje.salud = 0
