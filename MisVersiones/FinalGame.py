@@ -526,8 +526,8 @@ def game_thread(queue):
             impactoDisparo.play()
             enemigoNivel1.salud -= 15
 
-        if enemigoNivel1.salud <= 0:
-            enemigoNivel1.kill()
+            if enemigoNivel1.salud <= 0:
+                enemigoNivel1.kill()
 
         colision_disparos_enemigosNivel2 = pygame.sprite.groupcollide(spritesEnemigosNivel2, spritesBalas, False, True, pygame.sprite.collide_circle)
 
@@ -536,8 +536,8 @@ def game_thread(queue):
             impactoDisparo.play()
             enemigoNivel2.salud -= 15
 
-        if enemigoNivel2.salud <= 0:
-            enemigoNivel2.kill()
+            if enemigoNivel2.salud <= 0:
+                enemigoNivel2.kill()
         
         colision_disparos_enemigosNivel3 = pygame.sprite.groupcollide(spritesEnemigosNivel3, spritesBalas, False, True, pygame.sprite.collide_circle)
         
@@ -546,8 +546,8 @@ def game_thread(queue):
             impactoDisparo.play()
             enemigoNivel3.salud -= 15
 
-        if enemigoNivel3.salud <= 0:
-            enemigoNivel3.kill()
+            if enemigoNivel3.salud <= 0:
+                enemigoNivel3.kill()
 
         # Fondo de screen, dibujo de sprites y formas geométricas
         sprites.draw(screen) # Dibujamos los sprites en la screen
