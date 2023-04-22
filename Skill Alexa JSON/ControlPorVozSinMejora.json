@@ -1,0 +1,124 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "abre voz letal",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "MovementIntent",
+                    "slots": [
+                        {
+                            "name": "direccion",
+                            "type": "DireccionAccion"
+                        }
+                    ],
+                    "samples": [
+                        "desplazate hacia {direccion}",
+                        "muévete hacia {direccion}",
+                        "mueve hacia {direccion}",
+                        "ve hacia {direccion}",
+                        "muévete a la {direccion}",
+                        "desplazate a la {direccion}",
+                        "ve a la {direccion}",
+                        "mueve a la {direccion}",
+                        "mueve {direccion}",
+                        "ve {direccion}",
+                        "muévete {direccion}",
+                        "desplazate {direccion}",
+                        "{direccion}"
+                    ]
+                },
+                {
+                    "name": "ShootIntent",
+                    "slots": [
+                        {
+                            "name": "direccion",
+                            "type": "DireccionAccion"
+                        }
+                    ],
+                    "samples": [
+                        "dispara hacia la {direccion}",
+                        "disparar hacia la {direccion}",
+                        "dispara por la {direccion} ",
+                        "disparar por la {direccion}",
+                        "dispara hacia {direccion}",
+                        "disparar hacia {direccion}",
+                        "dispara a la {direccion}",
+                        "disparar a la {direccion}",
+                        "disparar {direccion}",
+                        "dispara {direccion}"
+                    ]
+                },
+                {
+                    "name": "EndgameIntent",
+                    "slots": [],
+                    "samples": [
+                        "fin del juego"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "DireccionAccion",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "abajo derecha"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "abajo izquierda"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "arriba derecha"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "arriba izquierda"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "izquierda"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "derecha"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "arriba"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "abajo"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
