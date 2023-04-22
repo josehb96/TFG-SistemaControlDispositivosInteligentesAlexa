@@ -39,7 +39,7 @@ def game_thread(queue):
             super().__init__()
 
             # Rectángulo (jugador), recordemos que las imágenes en Pygame son rectángulos
-            self.image = pygame.image.load("Imagenes/Personaje.png").convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
+            self.image = pygame.image.load("../Imagenes/Personaje.png").convert() # Convertimos la imagen a tipo Pygame para que el rendimiento mejore
             #self.image.fill(H_FA2F2F) # No indicamos ningún color al sprite porque queremos que se muestre la imagen
 
             self.image.set_colorkey(VERDE) # Con esta función podemos eliminar el color indicado por parámetro de la imagen
