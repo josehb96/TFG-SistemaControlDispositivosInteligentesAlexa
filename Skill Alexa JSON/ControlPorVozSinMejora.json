@@ -1,7 +1,7 @@
 {
     "interactionModel": {
         "languageModel": {
-            "invocationName": "abre voz letal",
+            "invocationName": "voz letal",
             "intents": [
                 {
                     "name": "AMAZON.CancelIntent",

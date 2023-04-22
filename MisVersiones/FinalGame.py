@@ -397,6 +397,15 @@ def game_thread(queue):
                 
                 personaje.ejecutaMovimiento(mensaje)
 
+                # Dibujamos el sprite del personaje en su posición actualizada
+                sprites.draw(screen)
+
+                # Actualizamos los sprites
+                sprites.update()
+
+                # Actualizamos la pantalla
+                pygame.display.flip()
+
             elif "dispara" in mensaje:
 
                 if mensaje == "dispara derecha":
@@ -407,6 +416,9 @@ def game_thread(queue):
                 
                 else:
                     personaje.disparo(personaje.direccionApuntado)
+
+                # Dibujamos el sprite de la bala
+                spritesBalas.draw(screen)
 
             elif mensaje == 'Endgame': # Si se recibe el mensaje Endgame es para indicarnos que termine la ejecución del juego
 
@@ -548,8 +560,7 @@ def game_thread(queue):
             if enemigoNivel3.salud <= 0:
                 enemigoNivel3.kill()
 
-        # Fondo de screen, dibujo de sprites y formas geométricas
-        sprites.draw(screen) # Dibujamos los sprites en la screen
+        sprites.draw(screen)
         spritesEnemigosNivel1.draw(screen)
         spritesEnemigosNivel2.draw(screen)
         spritesEnemigosNivel3.draw(screen)
@@ -606,7 +617,6 @@ def game_thread(queue):
                 bombilla.setColor(0, 100) # Ponemos la bombilla de color rojo para indicar que hemos perdido la partida
 
                 show_text(screen, times, "GAME OVER", ROJO, 100, 400, 300)
-
 
                 pygame.display.update()
 
