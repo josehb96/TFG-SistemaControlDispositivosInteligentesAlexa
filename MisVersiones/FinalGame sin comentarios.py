@@ -256,7 +256,6 @@ def game_thread(queue):
             self.rect = self.image.get_rect()
             self.rect.x = random.randrange(ANCHO - self.rect.width) 
             self.rect.y = -self.rect.width 
-            self.rect.y = 0
             self.velocidad_y = random.randrange(1, 2)
         
         def update(self):
@@ -326,7 +325,8 @@ def game_thread(queue):
 
     fondo = pygame.image.load("../Imagenes/Fondo.png").convert() 
 
-    posibles_movimientos = ["arriba", "abajo", "izquierda", "derecha", "abajo derecha", "abajo izquierda", "arriba derecha", "arriba izquierda"]
+    posibles_movimientos = ["arriba", "abajo", "izquierda", "derecha", "abajo derecha", 
+                            "abajo izquierda", "arriba derecha", "arriba izquierda"]
 
     ejecutando = True
     while ejecutando:
@@ -344,6 +344,12 @@ def game_thread(queue):
                 
                 personaje.ejecutaMovimiento(mensaje)
 
+                sprites.draw(screen)
+
+                sprites.update()
+
+                pygame.display.flip()
+
             elif "dispara" in mensaje:
 
                 if mensaje == "dispara derecha":
@@ -354,6 +360,8 @@ def game_thread(queue):
                 
                 else:
                     personaje.disparo(personaje.direccionApuntado)
+
+                spritesBalas.draw(screen)
 
             elif mensaje == 'Endgame': 
 
@@ -490,7 +498,7 @@ def game_thread(queue):
             if enemigoNivel3.salud <= 0:
                 enemigoNivel3.kill()
 
-        sprites.draw(screen) 
+        sprites.draw(screen)
         spritesEnemigosNivel1.draw(screen)
         spritesEnemigosNivel2.draw(screen)
         spritesEnemigosNivel3.draw(screen)
@@ -547,7 +555,6 @@ def game_thread(queue):
                 bombilla.setColor(0, 100) 
 
                 show_text(screen, times, "GAME OVER", ROJO, 100, 400, 300)
-
 
                 pygame.display.update()
 

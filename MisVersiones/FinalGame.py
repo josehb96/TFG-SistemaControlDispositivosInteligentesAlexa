@@ -305,7 +305,6 @@ def game_thread(queue):
             self.rect = self.image.get_rect()
             self.rect.x = random.randrange(ANCHO - self.rect.width) # Posición inicial en x que van a tomar los virus instanciados evitando que se generen a medio trozo de la screen
             self.rect.y = -self.rect.width # Evitamos que se genere por dentro de la screen
-            self.rect.y = 0
             self.velocidad_y = random.randrange(1, 2)
         
         def update(self):
@@ -313,7 +312,6 @@ def game_thread(queue):
             if self.rect.top > ALTO: # Si el virus desaparece de la screen por debajo, entonces que vuelva a tomar los valores iniciales
                 self.rect.x = random.randrange(ANCHO - self.rect.width)
                 self.rect.y = -self.rect.width
-                # ANCHO
                 self.velocidad_y = random.randrange(1, 2) # Y además que vuelva a tomar una velocidad aleatoria diferente
 
     class Botiquin(pygame.sprite.Sprite):
