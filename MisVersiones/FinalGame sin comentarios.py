@@ -598,7 +598,8 @@ def start_skill():
     return question('Bienvenido a Voz Letal. ¿Deseas moverte o disparar?') \
         .reprompt("Dígame a dónde quiere moverse o disparar.")
 
-lista_direcciones = ["arriba", "abajo", "izquierda", "derecha", "arriba izquierda", "arriba derecha", "abajo derecha", "abajo izquierda"]
+lista_direcciones = ["arriba", "abajo", "izquierda", "derecha", 
+                    "arriba izquierda", "arriba derecha", "abajo derecha", "abajo izquierda"]
 
 @ask.intent('MovementIntent')
 def realiza_movimiento(direccion):
