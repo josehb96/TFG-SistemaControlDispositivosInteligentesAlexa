@@ -51,7 +51,7 @@ Este proyecto integra el asistente de voz Amazon Alexa con una Raspberry Pi para
 5. **Configura ngrok:**
     - Regístrate en ngrok y descarga el binario.
     - Iniciar ngrok:
-    
+      
     ```sh
     ngrok http 5000
 
