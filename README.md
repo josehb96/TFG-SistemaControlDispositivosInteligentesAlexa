@@ -38,32 +38,36 @@ Este proyecto integra el asistente de voz Amazon Alexa con una Raspberry Pi para
 ## Instalación
 
 1. **Clona el repositorio:**
+   
    ```sh
    git clone https://github.com/josehb96/TFG-SistemaControlDispositivosInteligentesAlexa.git
    cd TFG-SistemaControlDispositivosInteligentesAlexa
 
-2. **Instala las dependencias:**
+3. **Instala las dependencias:**
+   
    ```sh
    pip install flask flask-ask pygame
 
-3. **Configura ngrok:**
-- Regístrate en ngrok y descarga el binario.
-- Iniciar ngrok:
-  ```sh
-  ngrok http 5000
+5. **Configura ngrok:**
+  - Regístrate en ngrok y descarga el binario.
+  - Iniciar ngrok:
+    
+    ```sh
+    ngrok http 5000
 
 4. **Configura la skill en Amazon Developer Console**
-- Crea una nueva skill en la consola de desarrolladores de Amazon Alexa
-- Configura el endpoint de la skill usando la URL proporcionada por ngrok.
+  - Crea una nueva skill en la consola de desarrolladores de Amazon Alexa
+  - Configura el endpoint de la skill usando la URL proporcionada por ngrok.
 
 ## Uso
 
 1. **Ejecuta la aplicación:**
+   
    ```sh
    python app.py
 
-2. **Inicia la skill en tu dispositivo Alexa y prueba los comandos de voz.**
-- Ejemplo: "Alexa, abre juego de Raspberry Pi".
+3. **Inicia la skill en tu dispositivo Alexa y prueba los comandos de voz.**
+  - Ejemplo: "Alexa, abre juego de Raspberry Pi".
 
 ## Arquitectura
 El sistema utiliza una arquitectura cliente-servidor donde Alexa actúa como cliente enviando comandos de voz a un servidor Flask ejecutándose en la Raspberry Pi. La Raspberry Pi interpreta los comandos y controla el videojuego y otros dispositivos conectados.
