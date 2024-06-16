@@ -78,7 +78,7 @@ El sistema utiliza una arquitectura cliente-servidor donde Alexa actúa como cli
 
 ## Agradecimientos
 
-![Arquitectura del sistema](/images/Arquitectura.png "Arquitectura del sistema")
+![Arquitectura del sistema](/Imagenes/Arquitectura.png "Arquitectura del sistema")
 
 Gracias a todos los que han contribuido a este proyecto, especialmente a Francisco Antonio Pujol López por su tutoría y a mi familia por su apoyo constante.
 
