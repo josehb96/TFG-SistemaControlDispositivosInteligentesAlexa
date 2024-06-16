@@ -72,13 +72,11 @@ Este proyecto integra el asistente de voz Amazon Alexa con una Raspberry Pi para
 
 ## Arquitectura
 
-
+![Arquitectura del sistema](/Imagenes/Arquitectura.png "Arquitectura del sistema")
 
 El sistema utiliza una arquitectura cliente-servidor donde Alexa actúa como cliente enviando comandos de voz a un servidor Flask ejecutándose en la Raspberry Pi. La Raspberry Pi interpreta los comandos y controla el videojuego y otros dispositivos conectados.
 
 ## Agradecimientos
-
-![Arquitectura del sistema](/Imagenes/Arquitectura.png "Arquitectura del sistema")
 
 Gracias a todos los que han contribuido a este proyecto, especialmente a Francisco Antonio Pujol López por su tutoría y a mi familia por su apoyo constante.
 
